@@ -1,6 +1,8 @@
 // Riceve i contatti dall'app sul telefono e li scrive nel foglio "Contatti".
 // Va incollato in: foglio Google → Estensioni → Apps Script, poi Distribuisci → App web.
 // Se lo stesso contatto arriva due volte (es. dopo un "Riapri WhatsApp") aggiorna la riga, non la duplica.
+// Il telefono arriva già con l'apostrofo davanti ("'+39 …"): lo mette l'app, perché setValues
+// tratta "+39" come una formula. Non aggiungerne un altro qui.
 
 const CODICE = "__CODICE__";
 const INTESTAZIONE = ["ID", "Data e ora", "Evento", "Nome", "Cognome", "Telefono", "Azienda", "Cosa fa", "Email", "Note", "Consenso", "WhatsApp aperto"];

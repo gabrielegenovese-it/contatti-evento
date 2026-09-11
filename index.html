@@ -511,7 +511,10 @@ async function sincronizza() {
   inCorso = true;
   try {
     for (const c of daFare) {
-      const j = await chiama({ contatto: perFoglio(c) });
+      const riga = perFoglio(c);
+      // L'apostrofo dice a Google Fogli "è testo": senza, "+39 …" diventa una formula e appare #ERROR!
+      if (riga.telefono) riga.telefono = "'" + riga.telefono;
+      const j = await chiama({ contatto: riga });
       if (!j.ok) { ultimoErrore = j.errore === "codice" ? "Codice sbagliato" : "Il foglio non risponde"; break; }
       c.sincronizzato = new Date().toISOString();
       ultimoErrore = "";
