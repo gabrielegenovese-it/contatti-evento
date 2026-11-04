@@ -1,0 +1,14 @@
+{
+  "name": "Agenda Alessia Estetica & Benessere",
+  "short_name": "Agenda",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff8fa",
+  "theme_color": "#ffe9ee",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

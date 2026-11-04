@@ -1,0 +1,2049 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agenda · Alessia Estetica & Benessere</title>
+<meta name="theme-color" content="#ffe9ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Agenda">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--gut:50px;--viola:#6a4a9c;--viola2:#ece3f7;--bordeaux:#8e1f2f;--rosa:#ffe9ee;--inchiostro:#2a2024;--grigio:#6e5f68;--linea:#f3dfe6;--fondo:#fff8fa;--rosso:#b3261e;--verde:#1e7a4d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button,a,input,select,label{touch-action:manipulation}
+html,body{margin:0;height:100%;overscroll-behavior:none}
+body{font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--inchiostro);background:var(--fondo);display:flex;flex-direction:column;height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--linea);background:#fff;border-radius:10px;padding:9px 13px;min-height:42px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--viola);outline-offset:1px}
+button.pieno{background:var(--bordeaux);border-color:var(--bordeaux);color:#fff;font-weight:600}
+button.pericolo{color:var(--rosso);border-color:#e7c3c0}
+button.wa{background:var(--verde);border-color:var(--verde);color:#fff;font-weight:600}
+input,select,textarea{width:100%;border:1px solid #cfc8d8;border-radius:10px;padding:10px 12px;background:#fff;min-height:44px}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 4px}
+label.riga{display:flex;gap:8px;align-items:center;font-weight:400}
+label.riga input{width:auto;min-height:0}
+header{background:var(--rosa);border-bottom:1px solid #fcd4df;padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header h1{margin:0 auto 0 0;line-height:0}
+header h1 img{height:52px;width:auto;mix-blend-mode:multiply}
+nav button{color:#5d4f57}
+a.bottone{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--linea);background:#fff;border-radius:10px;padding:9px 13px;min-height:42px;color:inherit;text-decoration:none}
+.ico{display:none;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav{display:flex;gap:4px}
+nav button{border:0;background:none;color:var(--grigio)}
+nav button.attivo{background:#fff;color:var(--viola);font-weight:600}
+main{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column}
+.scorre{flex:1;min-height:0;overflow:auto}
+.contenuto{max-width:760px;width:100%;flex:none;margin:0 auto;padding:14px}
+.barra{display:flex;gap:8px;align-items:center;padding:10px 14px;background:#fff;border-bottom:1px solid var(--linea);flex-wrap:wrap}
+.barra strong{font-size:17px;text-transform:capitalize}
+.settimana{display:flex;gap:4px;padding:8px 14px;background:#fff;border-bottom:1px solid var(--linea);overflow-x:auto}
+.settimana button{flex:1;min-width:58px;padding:5px 3px;font-size:13px;line-height:1.25}
+.settimana button.oggi{border-color:var(--viola)}
+.settimana button.scelto{background:var(--viola);color:#fff;border-color:var(--viola)}
+.settimana small{display:block;opacity:.8}
+.grigliaZona{display:flex;min-width:100%;position:relative}
+.ore{width:var(--gut);flex:none;position:sticky;left:0;background:var(--fondo);z-index:3;border-right:1px solid var(--linea)}
+.ora{position:absolute;font-size:12px;color:var(--grigio);right:6px;transform:translateY(-50%)}
+.colonna{flex:1;min-width:0;border-right:1px solid var(--linea)}
+.testate{position:sticky;top:0;z-index:4;display:flex;background:#fff;border-bottom:1px solid var(--linea)}
+.angolo{width:var(--gut);flex:none;border-right:1px solid var(--linea)}
+.tab{flex:1;min-width:0;border:0;border-radius:0;border-bottom:3px solid var(--c);background:#fff;font-weight:600;font-size:14px;padding:6px 2px;min-height:40px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tab[data-zoom]{background:var(--c2)}
+.tab.attiva[data-zoom]{background:var(--c);color:#fff}
+.scale{display:flex;gap:2px;margin-left:8px;background:var(--viola2);border-radius:10px;padding:2px}
+.scale button{border:0;background:none;min-height:36px;padding:4px 11px;font-size:14px;color:var(--viola)}
+.scale button.attiva{background:var(--viola);color:#fff;font-weight:600}
+.filtri{display:flex;background:#fff;border-bottom:1px solid var(--linea)}
+.sett .app{padding:1px 2px;font-size:11px;border-left-width:2px;min-height:14px}
+.sett .app b{white-space:nowrap}
+.sett.solo1 .app{font-size:12px;padding:1px 4px}
+.tab.oggi{color:var(--viola);text-decoration:underline}
+.mese{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(92px,1fr);min-height:100%}
+.testaMese{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:#fff;border-bottom:1px solid var(--linea);font-size:13px;text-align:center;color:var(--grigio);padding:4px 0;text-transform:capitalize}
+.cella{border:0;border-right:1px solid var(--linea);border-bottom:1px solid var(--linea);border-radius:0;background:#fff;padding:6px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:0;font-size:14px}
+.cella.fuori{background:var(--fondo);color:#a59eae}
+.cella.chiusa{background:repeating-linear-gradient(45deg,#fdeef2,#fdeef2 6px,#fff6f8 6px,#fff6f8 12px)}
+.cella.oggi b{background:var(--viola);color:#fff;border-radius:99px;padding:0 7px}
+.cella small{color:var(--grigio)}
+.barre{display:flex;gap:2px;height:7px;margin-top:auto}
+.barre i{display:block;background:var(--c);border-radius:2px;min-width:3px}
+.anno{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;padding:14px}
+.miniMese{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:8px}
+.miniMese>button{width:100%;border:0;min-height:34px;padding:2px 4px;display:flex;justify-content:space-between;font-weight:600;text-transform:capitalize}
+.miniGiorni{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.miniGiorni button{min-height:27px;padding:0;border:0;border-radius:5px;font-size:12px;background:hsl(263 36% var(--l,98%));color:var(--t,inherit)}
+.miniGiorni button.oggi{outline:2px solid var(--viola)}
+.stretta{flex:.6}
+.solo .stretta{flex:.45}
+div.tab{display:flex;align-items:center;justify-content:center;color:var(--grigio)}
+.pista{position:relative;cursor:copy;background-image:linear-gradient(to bottom,var(--linea) 1px,transparent 1px);background-size:100% var(--oraPx)}
+.chiuso{position:absolute;left:0;right:0;background:repeating-linear-gradient(45deg,#fbe6ec,#fbe6ec 6px,#fff1f4 6px,#fff1f4 12px);pointer-events:none}
+.adesso{position:absolute;left:0;right:0;height:2px;background:var(--rosso);z-index:1;pointer-events:none}
+.app{position:absolute;left:3px;right:3px;border:0;border-left:4px solid var(--c);background:var(--c2);border-radius:6px;padding:2px 6px;text-align:left;font-size:13px;line-height:1.2;overflow:hidden;min-height:22px;z-index:1}
+.app b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#4f4759}
+.app u{text-decoration:none}
+.etichetta{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.3px;background:var(--c);color:#fff;border-radius:4px;padding:0 4px;margin-left:3px;vertical-align:1px}
+.app .corto{display:none}
+.app.esterno{background:#eef0f3;border-left-color:#7c8796;border-left-style:dashed}
+.app.fatto{opacity:.6}
+.app.noshow{opacity:.55}
+.app.noshow b{text-decoration:line-through}
+.ope{display:flex;gap:6px;flex-wrap:wrap}
+.ope button{min-height:40px;padding:6px 12px;font-size:14px;border-bottom:3px solid var(--c,var(--linea))}
+.ope button.attiva{background:var(--c,var(--inchiostro));border-color:var(--c,var(--inchiostro));color:#fff;font-weight:600}
+.pallino{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:5px}
+.giornata{padding:6px 14px;background:#fff6dd;font-size:14px;border-bottom:1px solid var(--linea)}
+.scheda{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:12px;margin-bottom:10px}
+.scheda.cliccabile{cursor:pointer;display:block;width:100%;text-align:left}
+.tenue{color:var(--grigio);font-size:14px}
+.azioni{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+dialog{border:0;border-radius:16px;padding:0;width:min(560px,calc(100vw - 20px));max-height:calc(100dvh - 20px);box-shadow:0 16px 50px rgba(30,15,50,.3)}
+dialog::backdrop{background:rgba(30,20,45,.45)}
+.dentro{padding:16px}
+.dentro h2{margin:0 0 6px;font-size:19px}
+.chip{display:inline-flex;gap:6px;align-items:center;background:var(--viola2);border-radius:99px;padding:4px 6px 4px 11px;margin:3px 4px 3px 0;font-size:14px}
+.chip button{min-height:28px;min-width:28px;padding:0;border:0;background:none}
+.lista{max-height:190px;overflow:auto;border:1px solid var(--linea);border-radius:10px;margin-top:6px}
+.lista button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--linea);border-radius:0;background:#fff;display:flex;justify-content:space-between;gap:10px}
+.lista .cat{font-size:12px;font-weight:700;padding:6px 12px;background:var(--fondo);color:var(--grigio)}
+.liberi{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.liberi button{font-size:14px;min-height:38px;padding:5px 10px}
+.due{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.totale{display:flex;justify-content:space-between;font-weight:600;margin-top:12px;padding:10px 12px;background:var(--viola2);border-radius:10px}
+.avviso{background:#fff6dd;border:1px solid #ecd892;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:14px}
+.avviso.errore{background:#fbeae9;border-color:#e7c3c0}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--inchiostro);color:#fff;padding:10px 16px;border-radius:10px;z-index:99;max-width:90vw;display:none}
+.riga-serv{display:grid;grid-template-columns:1fr 66px 66px 96px 36px;gap:6px;align-items:center;margin-bottom:6px}
+.riga-serv input,.riga-serv select{padding:6px 8px;min-height:38px}
+.riga-serv button{min-height:36px;padding:0}
+.stimata [data-k="minuti"]{border-color:#d4a72c;background:#fff6dd}
+@media (max-width:620px){nav{order:3;width:100%}nav button{flex:1;padding:8px 2px}
+:root{--gut:36px}.scale{margin-left:0;width:100%}.scale button{flex:1;padding:4px 2px}.mese{grid-auto-rows:minmax(64px,1fr)}.cella{padding:3px}.cella small{font-size:11px}.sett:not(.solo1) .app b,.sett:not(.solo1) .app span{display:none}
+.contaGiorno{display:none}.ora{font-size:11px;right:3px}.tab{font-size:13px}
+.compatta .app{left:1px!important;padding:1px 3px;font-size:12px;border-left-width:3px}.compatta .app b{white-space:normal}.compatta .app span{display:none}.compatta .app .lungo{display:none}.compatta .app .corto{display:inline}}
+@media (max-width:620px){
+header{padding:calc(6px + env(safe-area-inset-top)) 12px 6px;justify-content:center}
+header h1{margin:0}
+header h1 img{height:46px}
+main{margin-bottom:calc(60px + env(safe-area-inset-bottom))}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:20;order:0;width:auto;gap:0;background:#fff;border-top:1px solid var(--linea);padding:4px 4px calc(4px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(60,30,60,.06)}
+nav button.attivo{background:var(--viola2);color:var(--viola)}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:52px;padding:4px 0;font-size:11px;border-radius:12px}
+.ico{display:block}
+#btnNuovo{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:21;width:60px;height:60px;min-height:0;padding:0;border-radius:50%;font-size:0;box-shadow:0 8px 22px rgba(142,31,47,.4)}
+#btnNuovo::before{content:"+";font-size:32px;line-height:1;font-weight:400}
+body.modulo #btnNuovo{display:none}
+.barra{padding:6px 10px;gap:6px}
+.barra #ieri{order:1}.barra strong{order:2;flex:1;min-width:0;text-align:center;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.barra #domani{order:3}.barra #oggi{order:4;padding:6px 10px}
+.barra>button{min-height:44px;min-width:44px;padding:6px}
+.scale{order:5}.scale button{min-height:40px}
+.settimana{padding:5px 8px}.settimana button{min-height:44px;min-width:52px;font-size:12px}
+.tab{min-height:44px}
+.scorre{padding-bottom:84px}
+.contenuto{padding:12px 12px 90px}
+.anno{grid-template-columns:1fr;padding:10px 10px 90px}
+.miniGiorni button{min-height:42px;font-size:14px}
+.miniMese>button{min-height:44px}
+.chip button{min-height:36px;min-width:36px}
+.liberi button{min-height:44px}
+.lista button{min-height:48px}
+.ope{display:grid;grid-template-columns:repeat(3,1fr)}
+.ope button{min-height:46px;padding:6px 4px}
+div.tab{font-size:11px}
+#toast{bottom:calc(150px + env(safe-area-inset-bottom))}
+dialog{width:100vw;max-width:100vw;max-height:94dvh;margin:auto 0 0;border-radius:18px 18px 0 0}
+.dentro{padding:18px 14px 0}
+.dentro>.azioni:last-child{position:sticky;bottom:0;background:#fff;margin:12px -14px 0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--linea);z-index:2}
+.dentro>.azioni:last-child>button{min-height:48px;flex:1}
+.azioni>button,.azioni>a{min-height:46px}
+.scheda.cliccabile{min-height:60px}
+}
+@media (max-height:480px) and (orientation:landscape){
+header{display:none}
+main{margin-bottom:0}
+nav{position:static}
+}
+#fumetto{position:fixed;z-index:30;display:none;width:250px;background:#fff;border:1px solid var(--linea);border-top:4px solid var(--c);border-radius:10px;padding:9px 12px;font-size:14px;line-height:1.35;box-shadow:0 10px 30px rgba(60,30,60,.22);pointer-events:none}
+#fumetto b{display:block;font-size:15px}
+#fumetto .riga{color:var(--grigio);font-size:13px;margin-top:2px}
+#fumetto .tratt{margin-top:5px}
+#fumetto .fondoF{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:13px}
+#fumetto .nota{margin-top:5px;font-size:13px;font-style:italic}
+#bannerCopia{padding:6px 14px;background:#fbeae9;font-size:14px;border-bottom:1px solid var(--linea)}
+#bannerCopia button{min-height:32px;padding:2px 10px;font-size:13px;margin-left:6px}
+#guidaCopia{margin-top:8px;font-size:14px}
+#guidaCopia summary{cursor:pointer;min-height:40px;display:flex;align-items:center;color:var(--grigio)}
+#guidaCopia summary::before{content:"▸";margin-right:6px}
+#guidaCopia[open] summary::before{content:"▾"}
+#guidaCopia ul{margin:4px 0 0;padding-left:18px}
+#guidaCopia li{margin-bottom:6px}
+#btnAggiorna{display:inline-flex;align-items:center;gap:6px}
+#btnAggiorna .ico{display:block;width:20px;height:20px}
+#btnAggiorna.gira .ico{animation:gira 1s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+@media (max-width:620px){header{position:relative}#btnAggiorna{position:absolute;right:10px;top:calc(8px + env(safe-area-inset-top));padding:8px;min-height:44px;min-width:44px;justify-content:center}#btnAggiorna span{display:none}}
+.rigaApp{display:flex;justify-content:space-between;gap:8px;width:100%;min-height:44px;margin-bottom:4px;padding:6px 10px;text-align:left;font-size:14px;color:inherit}
+.rigaApp .cosa{display:block;color:var(--grigio);font-size:13px}
+.rigaApp .stato{flex:none;align-self:center;font-size:13px;color:var(--grigio)}
+.rigaApp.annullata b{text-decoration:line-through}
+.tre{grid-template-columns:1.4fr 1fr 1fr}
+.tre>*{min-width:0}
+.tab .cal2{display:none}
+.app.blocco{background:repeating-linear-gradient(135deg,#f3eff2,#f3eff2 6px,#e7e1e6 6px,#e7e1e6 12px);border-left-color:var(--c)}
+.app.blocco.pertutte{z-index:0;border-left-color:#7c8796}
+@media (max-width:620px){.tre{grid-template-columns:1fr 1fr}.tre>:first-child{grid-column:1/-1}.tab .cal1{display:none}.tab .cal2{display:inline}}
+/* Disponibilità nel modulo */
+.calDisp{border:1px solid var(--linea);border-radius:12px;padding:6px;background:#fff}
+.calTesta{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.calTesta strong{flex:1;text-align:center;text-transform:capitalize;font-size:15px}
+.calTesta button{min-height:36px;min-width:40px;padding:2px 8px}
+.calGriglia{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.calGriglia .gs{font-size:11px;color:var(--grigio);text-align:center;text-transform:capitalize}
+.calGriglia button{min-height:38px;padding:2px 0;border-radius:8px;font-size:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1}
+.calGriglia button i{display:block;width:16px;height:4px;border-radius:2px;background:transparent}
+.calGriglia .gLibero i{background:#2e9e64}.calGriglia .gPochi i{background:#d39b17}.calGriglia .gPieno i{background:#c9c0c6}
+.calGriglia .gPieno{color:#a59eae}
+.calGriglia .chiusoG{background:repeating-linear-gradient(45deg,#fdeef2,#fdeef2 5px,#fff6f8 5px,#fff6f8 10px);color:#a59eae}
+.calGriglia .fuoriM{visibility:hidden}
+.calGriglia .sceltoG{background:var(--viola);border-color:var(--viola);color:#fff}
+.calGriglia .oggiG{border-color:var(--viola)}
+.legenda{display:flex;gap:12px;font-size:12px;color:var(--grigio);margin-top:5px;flex-wrap:wrap}
+.legenda i{display:inline-block;width:12px;height:4px;border-radius:2px;margin-right:4px;vertical-align:middle}
+.liberi .pallino{margin-right:2px;width:7px;height:7px}
+.liberi button.sceltoO{background:var(--viola);color:#fff;border-color:var(--viola)}
+.presi{background:var(--viola2);border-radius:10px;padding:8px 12px;margin:8px 0;font-size:14px}
+.presi div{margin-top:2px}
+.conferma{font-size:14px;margin:6px 0}
+.conferma.si{color:var(--verde);font-weight:600}
+/* Listino */
+.area{border:1px solid var(--linea);border-radius:12px;padding:8px 10px 10px;margin-top:12px;background:var(--fondo)}
+.areaTesta{display:flex;gap:6px;align-items:center}
+.areaTesta input{font-weight:700;flex:1;min-width:0}
+.areaTesta button{min-height:38px;min-width:38px;padding:0 8px}
+.colTesta{display:grid;grid-template-columns:minmax(0,1fr) 80px 86px 136px 132px 36px;gap:6px;font-size:12px;color:var(--grigio);margin:8px 0 3px;font-weight:600}
+.riga-serv{grid-template-columns:minmax(0,1fr) 80px 86px 136px 132px 36px}
+.unita{position:relative;display:block;margin:0;font-weight:400}
+.unita input{padding-right:34px!important}
+.unita span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--grigio);pointer-events:none}
+.unita.prima input{padding-right:8px!important;padding-left:24px!important}
+.unita.prima span{left:9px;right:auto}
+@media (max-width:620px){.colTesta{display:none}.riga-serv{grid-template-columns:1fr 1fr 40px;background:#fff;border:1px solid var(--linea);border-radius:10px;padding:6px}
+.riga-serv .c-nome{grid-area:1/1/2/3}.riga-serv .c-via{grid-area:1/3/2/4}.riga-serv .c-min{grid-area:2/1/3/2}.riga-serv .c-eur{grid-area:2/2/3/4}.riga-serv .c-dove{grid-area:3/1/4/2}.riga-serv .c-area{grid-area:3/2/4/4}
+.areaTesta button{min-width:40px}}
+/* Incassi */
+.tessere{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.tessera{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:10px 12px}
+.tessera small{display:block;color:var(--grigio);font-size:13px}
+.tessera b{display:block;font-size:22px;margin-top:2px;font-variant-numeric:tabular-nums}
+.tessera span{display:block;color:var(--grigio);font-size:12px;margin-top:2px}
+table.inc{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--linea);border-radius:12px;overflow:hidden;font-size:14px;font-variant-numeric:tabular-nums}
+table.inc th,table.inc td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--linea);white-space:nowrap}
+table.inc th:first-child,table.inc td:first-child{text-align:left}
+table.inc th{font-size:12px;color:var(--grigio);font-weight:600;background:var(--fondo)}
+table.inc tfoot td{font-weight:700;background:var(--fondo)}
+.quota{display:block;height:5px;border-radius:3px;background:var(--c,var(--viola));margin-top:4px;min-width:2px}
+.tabellaScorre{overflow-x:auto;margin:6px 0 14px}
+@media (max-width:620px){table.inc th,table.inc td{padding:7px 6px;font-size:13px}.nascondiTel{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1><img src="logo.png" alt="Alessia Estetica & Benessere" width="1102" height="466"></h1>
+  <button id="btnAggiorna" aria-label="Aggiorna"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 3v5h-5"/></svg><span>Aggiorna</span></button>
+  <button class="pieno" id="btnNuovo" aria-label="Nuovo appuntamento">+ Appuntamento</button>
+  <nav id="menu">
+    <button data-vista="agenda"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>Agenda</button>
+    <button data-vista="promemoria"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4l2-2zM10 21h4"/></svg>Promemoria</button>
+    <button data-vista="clienti"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg>Clienti</button>
+    <button data-vista="incassi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11V8a6 6 0 0 1 12 0v3M5 11h14v10H5zM12 15v2"/></svg>Incassi</button>
+    <button data-vista="impostazioni"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M16 5v4M8 15v4"/></svg>Impostazioni</button>
+  </nav>
+</header>
+<div id="bannerCopia" hidden></div>
+<main id="main"></main>
+<dialog id="dlg"><div class="dentro" id="dlgDentro"></div></dialog>
+<div id="toast" role="status"></div>
+<div id="fumetto" role="tooltip"></div>
+<script src="listino.js"></script>
+<script>
+"use strict";
+const VERSIONE_APP = 15;
+// Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
+const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
+const ORA_INIZIO = 8, ORA_FINE = 21, PX_MIN = 1.5, GIORNI_CARICATI = 42;
+const $ = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const euro = n => "€ " + (Math.round(n * 100) / 100).toLocaleString("it-IT");
+const due = n => String(n).padStart(2, "0");
+const chiaveGiorno = d => `${d.getFullYear()}-${due(d.getMonth() + 1)}-${due(d.getDate())}`;
+const oraDi = d => `${due(d.getHours())}:${due(d.getMinutes())}`;
+const aData = (giorno, ora) => new Date(`${giorno}T${ora}:00`);
+const piuGiorni = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const lunedi = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+const minDa = hhmm => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; };
+const durataTesto = m => m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? " " + (m % 60) : ""}`;
+const nuovoId = () => "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const giornoLungo = d => d.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" });
+const haOre = a => !a.giornata;
+const USI = { cabina: ["cabina"], unghie: ["unghie"], laser: ["cabina", "laser"], pressoterapia: ["cabina", "pressoterapia"], nessuna: [] };
+const NOMI_USI = { cabina: "Cabina", unghie: "Unghie", laser: "Laser", pressoterapia: "Pressoterapia", nessuna: "Ovunque" };
+const NOMI_RISORSE = { cabina: "Tutte le cabine sono occupate", unghie: "Tutte le postazioni unghie sono occupate", laser: "Il laser è già occupato", pressoterapia: "La macchina della pressoterapia è già occupata" };
+// Più trattamenti nello stesso appuntamento tengono tutto ciò che servono per l'intera durata.
+const usoDi = servizi => [...new Set(servizi.flatMap(s => USI[s.usa || usoDefault(s.categoria || "", s.nome)] || []))];
+const TUTTE = "Tutte";
+const soloApp = a => !a.blocco;
+const operatriciViste = () => [...new Set([...S.imp.operatrici, ...S.appuntamenti.filter(a => !a.esterno && a.operatrice && a.operatrice !== TUTTE).map(a => a.operatrice)])];
+const coloreDi = n => COLORI[(S.opViste || S.imp.operatrici).indexOf(n) % COLORI.length] || ["#7c8796", "#eef0f3"];
+const varColore = n => { const [c, c2] = coloreDi(n); return `--c:${c};--c2:${c2}`; };
+const NOMI_SCALA = { giorno: "Giorno", settimana: "Settimana", mese: "Mese", anno: "Anno" };
+const nomeCorto = n => { const p = String(n || "").trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[1][0]}.` : p[0]; };
+const normalizza = t => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+const S = {
+  cfg: JSON.parse(localStorage.getItem("agenda-cfg") || "null"),
+  vista: "agenda",
+  giorno: new Date(),
+  appuntamenti: [], clienti: [],
+  imp: IMPOSTAZIONI_PARTENZA,
+  dal: null, al: null,
+  filtro: localStorage.getItem("agenda-filtro") || "",
+  scala: localStorage.getItem("agenda-scala") || "giorno",
+  finestre: [], conteggi: {},
+  caricato: false, erroreRete: false, cercaClienti: "", scritture: 0,
+};
+
+// --- Collegamento e server ---------------------------------------------
+
+function leggiLinkCollega() {
+  const m = location.hash.match(/collega=([^&]+)/);
+  if (!m) return;
+  try {
+    S.cfg = JSON.parse(atob(decodeURIComponent(m[1])));
+    localStorage.setItem("agenda-cfg", JSON.stringify(S.cfg));
+  } catch (e) { avviso("Link di collegamento non valido"); }
+  history.replaceState(null, "", location.pathname);
+}
+
+async function api(azione, resto = {}) {
+  const r = await fetch(S.cfg.url, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },   // niente preflight: Apps Script non lo gestisce
+    body: JSON.stringify({ codice: S.cfg.codice, azione, ...resto }),
+  });
+  const dati = await r.json();
+  if (!dati.ok && dati.errore === "codice") throw new Error("Codice non valido: riapri il link di collegamento");
+  return dati;
+}
+
+// Cosa serve alla vista in corso.
+function rangeVista(d = S.giorno) {
+  if (S.scala === "mese") { const i = lunedi(new Date(d.getFullYear(), d.getMonth(), 1)); return [i, piuGiorni(i, 42)]; }
+  return [lunedi(d), piuGiorni(lunedi(d), 7)];
+}
+
+// Le settimane attorno a oggi si tengono sempre, se no i posti liberi sarebbero sbagliati
+// quando si guarda un mese lontano. Se la vista cade fuori, si aggiunge la sua finestra.
+async function carica() {
+  if (!S.cfg) return;
+  const dal = piuGiorni(lunedi(new Date()), -7), al = piuGiorni(dal, GIORNI_CARICATI);
+  const [ini, fin] = rangeVista();
+  const scritture = S.scritture;
+  try {
+    const d = await api("carica", { dal: dal.toISOString(), al: al.toISOString() });
+    if (!d.ok) throw new Error(d.dettaglio || d.errore);
+    let lista = d.appuntamenti;
+    const finestre = [[dal, al]];
+    if (S.scala !== "anno" && (ini < dal || fin > al)) {
+      const e = await api("carica", { dal: ini.toISOString(), al: fin.toISOString() });
+      if (!e.ok) throw new Error(e.dettaglio || e.errore);
+      const viste = new Set(lista.map(a => a.id + a.inizio));
+      lista = lista.concat(e.appuntamenti.filter(a => !viste.has(a.id + a.inizio)));
+      finestre.push([ini, fin]);
+    }
+    S.appuntamenti = lista; S.clienti = d.clienti;
+    S.imp = normalizzaImp(d.impostazioni);
+    S.dal = dal; S.al = al; S.finestre = finestre; S.caricato = true; S.erroreRete = false;
+    localStorage.setItem("agenda-copia", JSON.stringify({ appuntamenti: S.appuntamenti, clienti: S.clienti, imp: S.imp }));
+    // Se nel frattempo si è salvato qualcosa, questa lista può essere già vecchia: si allinea al giro dopo.
+    if (scritture === S.scritture) allineaCopia(lista, dal, al);
+  } catch (e) {
+    S.erroreRete = true;
+  }
+  disegna();
+}
+
+async function caricaConteggi(anno) {
+  if (S.conteggiInCorso === anno) return;
+  S.conteggiInCorso = anno;
+  try {
+    const r = await api("conteggi", { dal: new Date(anno, 0, 1).toISOString(), al: new Date(anno + 1, 0, 1).toISOString() });
+    if (!r.ok) throw new Error();
+    S.conteggi[anno] = r.giorni; S.erroreRete = false;
+  } catch (e) { S.erroreRete = true; S.conteggi[anno] = S.conteggi[anno] || null; }
+  S.conteggiInCorso = null;
+  disegna();
+}
+
+function assicura() {
+  if (S.scala === "anno") return;
+  const [ini, fin] = rangeVista();
+  if (!S.finestre.some(([a, b]) => ini >= a && fin <= b)) carica();
+}
+
+function caricaCopia() {
+  const c = JSON.parse(localStorage.getItem("agenda-copia") || "null");
+  if (c) { S.appuntamenti = c.appuntamenti; S.clienti = c.clienti; S.imp = normalizzaImp(c.imp); }
+}
+
+// Impostazioni salvate prima di una versione nuova: si completano con quello che manca.
+function normalizzaImp(x) {
+  const imp = { ...IMPOSTAZIONI_PARTENZA, ...(x || {}) };
+  const vecchie = x && (!x.risorse || x.risorse.pressoterapia == null);
+  imp.risorse = { ...IMPOSTAZIONI_PARTENZA.risorse, ...(x?.risorse || {}) };
+  imp.pause = imp.pause || {};
+  // Prima della macchina della pressoterapia quei trattamenti tenevano solo una cabina.
+  if (vecchie) imp.servizi = imp.servizi.map(s => /pressoterapia/i.test(s.nome) && (!s.usa || s.usa === "cabina") ? { ...s, usa: "pressoterapia" } : s);
+  const cat = [...(imp.categorie || []), ...imp.servizi.map(s => s.categoria || "Altro")];
+  imp.categorie = [...new Set(cat)];
+  return imp;
+}
+
+// Un periodo in più (per esempio il mese guardato nel modulo): si aggiunge a quello già caricato.
+const coperto = (ini, fin) => S.finestre.some(([a, b]) => ini >= a && fin <= b);
+async function caricaFinestra(ini, fin) {
+  if (coperto(ini, fin)) return true;
+  const chiave = ini.toISOString() + fin.toISOString();
+  if (caricaFinestra.inCorso?.[chiave]) return caricaFinestra.inCorso[chiave];
+  caricaFinestra.inCorso = caricaFinestra.inCorso || {};
+  return caricaFinestra.inCorso[chiave] = (async () => {
+    try {
+      const e = await api("carica", { dal: ini.toISOString(), al: fin.toISOString() });
+      if (!e.ok) throw new Error();
+      const viste = new Set(S.appuntamenti.map(a => a.id + a.inizio));
+      S.appuntamenti = S.appuntamenti.concat(e.appuntamenti.filter(a => !viste.has(a.id + a.inizio)));
+      S.finestre.push([ini, fin]);
+      return true;
+    } catch (err) { return false; }
+    finally { delete caricaFinestra.inCorso[chiave]; }
+  })();
+}
+
+function avviso(testo) {
+  const t = $("toast");
+  t.textContent = testo; t.style.display = "block";
+  clearTimeout(avviso.t); avviso.t = setTimeout(() => t.style.display = "none", 3500);
+}
+
+// --- Copia sul PC --------------------------------------------------------
+// Ogni appuntamento nuovo, cambiato o cancellato si aggiunge in fondo a un file di testo sul PC,
+// compresi quelli presi dal telefono, che si vedono alla rilettura. Si scrive sempre prima in coda
+// (localStorage): se il file non è raggiungibile le righe aspettano lì, non si perdono.
+const CHIAVI_COPIA = { attiva: "agenda-note-attiva", coda: "agenda-note-coda", visti: "agenda-note-visti" };
+const Copia = {
+  possibile: "showSaveFilePicker" in window,
+  attiva: !!localStorage.getItem(CHIAVI_COPIA.attiva),
+  file: null, stato: "spenta",   // spenta, ok, permesso, persa, errore
+  coda: JSON.parse(localStorage.getItem(CHIAVI_COPIA.coda) || "[]"),
+  visti: JSON.parse(localStorage.getItem(CHIAVI_COPIA.visti) || "{}"),
+  giro: Promise.resolve(), ultima: null,
+};
+
+function dbCopia(modo, usa) {
+  return new Promise((ok, no) => {
+    const q = indexedDB.open("agenda-note", 1);
+    q.onupgradeneeded = () => q.result.createObjectStore("cose");
+    q.onerror = () => no(q.error);
+    q.onsuccess = () => {
+      const r = usa(q.result.transaction("cose", modo).objectStore("cose"));
+      r.onsuccess = () => { q.result.close(); ok(r.result); };
+      r.onerror = () => { q.result.close(); no(r.error); };
+    };
+  });
+}
+
+const chiaveCopia = a => a.esterno ? a.id + "|" + a.inizio : a.id;
+
+function rigaCopia(a) {
+  const ini = new Date(a.inizio), fin = new Date(a.fine);
+  const data = ini.toLocaleDateString("it-IT", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
+  const quando = a.giornata ? data + " tutto il giorno" : `${data} ${oraDi(ini)}-${oraDi(fin)}`;
+  const voci = a.blocco ? [quando, "Orario bloccato: " + a.cliente, a.operatrice]
+    : a.esterno ? [quando, a.titolo, "scritto su Google Calendar"]
+    : [quando, a.cliente, a.telefono, a.operatrice, (a.servizi || []).join(", "), euro(a.prezzo || 0),
+       { fatto: "Fatto", noshow: "Non è venuta" }[a.stato], a.note && "Nota: " + a.note];
+  return voci.filter(Boolean).join(" | ").replace(/\s*\n\s*/g, " ");
+}
+
+function metteInCoda(etichetta, riga) {
+  const d = new Date();
+  const scritta = d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" });
+  Copia.coda.push(`${scritta} ${oraDi(d)}  ${etichetta.padEnd(10)}  ${riga}`);
+}
+
+function ricordaCopia() {
+  try {
+    localStorage.setItem(CHIAVI_COPIA.coda, JSON.stringify(Copia.coda));
+    localStorage.setItem(CHIAVI_COPIA.visti, JSON.stringify(Copia.visti));
+  } catch (e) { Copia.stato = "errore"; bannerCopia(); }
+}
+
+function notaCopia(a, etichetta) {
+  if (!Copia.attiva) return;
+  const k = chiaveCopia(a), riga = rigaCopia(a), prima = Copia.visti[k];
+  if (prima?.d === riga) return;
+  metteInCoda(etichetta || (prima ? "MODIFICATO" : "NUOVO"), riga);
+  Copia.visti[k] = { d: riga, t: new Date(a.inizio).getTime() };
+}
+
+function viaCopia(k) {
+  const v = Copia.visti[k];
+  if (!Copia.attiva || !v) return;
+  metteInCoda("CANCELLATO", v.d);
+  delete Copia.visti[k];
+}
+
+// Confronta quello che c'è sul calendario con quello che il file sa già.
+function allineaCopia(lista, dal, al) {
+  if (!Copia.attiva) return;
+  const da = dal.getTime(), a = al.getTime(), dentro = t => t >= da && t < a, presenti = new Set();
+  lista.forEach(x => {
+    if (!dentro(new Date(x.inizio).getTime())) return;
+    presenti.add(chiaveCopia(x)); notaCopia(x);
+  });
+  Object.entries(Copia.visti).forEach(([k, v]) => {
+    if (v.t < da) delete Copia.visti[k];
+    else if (dentro(v.t) && !presenti.has(k)) viaCopia(k);
+  });
+  scriviCopia();
+}
+
+function scriviCopia() {
+  ricordaCopia();
+  return Copia.giro = Copia.giro.then(svuotaCoda);
+}
+
+async function svuotaCoda() {
+  if (!Copia.attiva) return;
+  try {
+    Copia.file = Copia.file || await dbCopia("readonly", s => s.get("file"));
+    if (!Copia.file) Copia.stato = "persa";
+    else if (await Copia.file.queryPermission({ mode: "readwrite" }) !== "granted") Copia.stato = "permesso";
+    else {
+      const righe = Copia.coda.slice();
+      if (righe.length) {
+        const f = await Copia.file.getFile();
+        const w = await Copia.file.createWritable({ keepExistingData: true });
+        await w.seek(f.size);
+        const testa = "﻿Agenda Alessia Estetica & Benessere - copia degli appuntamenti\r\nOgni riga: quando è stata scritta, cosa è successo, poi i dati dell'appuntamento.\r\n\r\n";
+        await w.write((f.size ? "" : testa) + righe.join("\r\n") + "\r\n");
+        await w.close();
+        Copia.coda.splice(0, righe.length);
+        Copia.ultima = new Date();
+        ricordaCopia();
+      }
+      Copia.stato = "ok";
+    }
+  } catch (e) { Copia.stato = e.name === "NotFoundError" ? "persa" : "errore"; }
+  bannerCopia();
+}
+
+// La prima volta il file parte con tutti gli appuntamenti del prossimo anno, non solo quelli in memoria.
+async function attivaCopia() {
+  const oggi = new Date();
+  let file;
+  try {
+    file = await showSaveFilePicker({
+      suggestedName: `Agenda Alessia - copia dal ${chiaveGiorno(oggi)}.txt`, startIn: "documents",
+      types: [{ description: "File di testo", accept: { "text/plain": [".txt"] } }],
+    });
+  } catch (e) { return; }           // finestra chiusa senza scegliere
+  await dbCopia("readwrite", s => s.put(file, "file"));
+  Copia.file = file; Copia.attiva = true; Copia.visti = {};
+  S.scritture++;
+  localStorage.setItem(CHIAVI_COPIA.attiva, "1");
+  let lista = S.appuntamenti;
+  try {
+    const r = await api("carica", { dal: piuGiorni(oggi, -7).toISOString(), al: piuGiorni(oggi, 366).toISOString() });
+    if (r.ok) lista = r.appuntamenti.concat(lista.filter(a => !r.appuntamenti.some(x => chiaveCopia(x) === chiaveCopia(a))));
+  } catch (e) { /* si parte da quello già caricato */ }
+  lista.slice().sort((a, b) => a.inizio < b.inizio ? -1 : 1).forEach(a => notaCopia(a, "IN AGENDA"));
+  await scriviCopia();
+  if (Copia.stato === "ok") avviso("Copia sul PC attivata");
+}
+
+async function riattivaCopia() {
+  if (Copia.stato === "persa") return attivaCopia();
+  if (Copia.stato === "permesso") await Copia.file.requestPermission({ mode: "readwrite" }).catch(() => {});
+  await scriviCopia();
+}
+
+function bannerCopia() {
+  const n = Copia.coda.length, attesa = n ? ` ${n === 1 ? "1 riga aspetta di essere scritta" : n + " righe aspettano di essere scritte"}.` : "";
+  const testo = { permesso: "Copia sul PC in pausa: serve il permesso del browser." + attesa, errore: "Copia sul PC non riuscita." + attesa, persa: "Il file della copia sul PC non si trova più." + attesa }[Copia.stato];
+  const b = $("bannerCopia");
+  b.hidden = !testo;
+  if (testo) {
+    b.innerHTML = `${esc(testo)} <button id="copiaRiattiva">${Copia.stato === "persa" ? "Crea un file nuovo" : "Riattiva"}</button>`;
+    $("copiaRiattiva").onclick = riattivaCopia;
+  }
+  disegnaStatoCopia();
+}
+
+function disegnaStatoCopia() {
+  const c = $("statoCopia");
+  if (!c) return;
+  if (!Copia.possibile) return void (c.textContent = "Si attiva dal computer, con Chrome o Edge. Da questo dispositivo non si può.");
+  if (!Copia.attiva) {
+    c.innerHTML = `<div class="azioni"><button id="copiaAttiva">Attiva la copia</button></div>`;
+    $("copiaAttiva").onclick = attivaCopia;
+    return;
+  }
+  const ultima = Copia.ultima ? ` Ultima scrittura alle ${oraDi(Copia.ultima)}.` : "";
+  c.textContent = Copia.stato === "ok" ? `Attiva su "${Copia.file.name}".${ultima}` : "Attiva, ma per ora non riesce a scrivere: vedi l'avviso in alto.";
+}
+
+// --- Calcoli agenda -----------------------------------------------------
+
+// Gli appuntamenti divisi per giorno, rifatti solo quando la lista cambia.
+const cacheGiorni = { lista: null, n: -1, mappa: new Map() };
+function delGiorno(chiave) {
+  if (cacheGiorni.lista !== S.appuntamenti || cacheGiorni.n !== S.appuntamenti.length) {
+    const m = new Map();
+    S.appuntamenti.forEach(a => { const k = chiaveGiorno(new Date(a.inizio)); if (!m.has(k)) m.set(k, []); m.get(k).push(a); });
+    Object.assign(cacheGiorni, { lista: S.appuntamenti, n: S.appuntamenti.length, mappa: m });
+  }
+  return (cacheGiorni.mappa.get(chiave) || []).slice();
+}
+
+function orarioDel(d) { return S.imp.orari[d.getDay()] || null; }
+// La pausa vale solo se il giorno è aperto e se sta dentro l'orario.
+function pausaDel(d) {
+  const o = orarioDel(d), p = S.imp.pause?.[d.getDay()];
+  return o && p && p[1] > p[0] ? p : null;
+}
+// Le fasce da tratteggiare in griglia: prima dell'apertura, la pausa, dopo la chiusura.
+function fasceChiuse(d, altezza) {
+  const o = orarioDel(d), y = hhmm => (minDa(hhmm) - ORA_INIZIO * 60) * PX_MIN;
+  if (!o) return [[0, altezza]];
+  const p = pausaDel(d);
+  return [[0, y(o[0])], ...(p ? [[y(p[0]), y(p[1])]] : []), [y(o[1]), altezza]];
+}
+// "chiuso" se fuori orario, "pausa" se tocca la pausa, altrimenti null.
+function fuoriOrario(chiave, ini, fin) {
+  const d = new Date(chiave + "T12:00:00"), o = orarioDel(d);
+  const m = t => { const x = new Date(t); return x.getHours() * 60 + x.getMinutes(); };
+  if (!o || m(ini) < minDa(o[0]) || m(fin - 1) >= minDa(o[1])) return "chiuso";
+  const p = pausaDel(d);
+  if (p && m(ini) < minDa(p[1]) && m(fin) > minDa(p[0])) return "pausa";
+  return null;
+}
+
+// Chi è libera in quella fascia. Un evento scritto a mano su Calendar non dice di chi è:
+// conta come una persona occupata, così quattro operatrici non si bloccano per un evento solo.
+function libereAlle(chiave, ini, fin, ignoraId) {
+  const voci = delGiorno(chiave).filter(a => haOre(a) && a.id !== ignoraId && a.stato !== "noshow"
+    && new Date(a.inizio).getTime() < fin && new Date(a.fine).getTime() > ini);
+  const esterni = voci.filter(a => a.esterno).length;
+  const libere = S.imp.operatrici.filter(n => !voci.some(a => !a.esterno && (a.operatrice === n || a.operatrice === TUTTE)));
+  return libere.length > esterni ? libere : [];
+}
+
+// La prima risorsa esaurita in quella fascia, o null. Conta il massimo in uso nello stesso momento.
+function risorsaPiena(chiave, ini, fin, usa, ignoraId) {
+  const voci = delGiorno(chiave).filter(a => haOre(a) && a.id !== ignoraId && a.stato !== "noshow"
+    && new Date(a.inizio).getTime() < fin && new Date(a.fine).getTime() > ini);
+  return usa.find(r => {
+    const chi = voci.filter(a => (a.usa || []).includes(r));
+    const istanti = [ini, ...chi.map(a => new Date(a.inizio).getTime()).filter(t => t > ini && t < fin)];
+    const picco = Math.max(...istanti.map(t => chi.filter(a => new Date(a.inizio).getTime() <= t && new Date(a.fine).getTime() > t).length));
+    return S.imp.risorse[r] != null && picco >= S.imp.risorse[r];
+  }) || null;
+}
+
+// Gli orari d'inizio liberi in un giorno, ogni 15 minuti, con chi è libera a quell'ora.
+// null = giorno non ancora caricato (non si sa).
+function slotLiberi(chiave, durata, operatrice, ignoraId, usa = []) {
+  const d = new Date(chiave + "T12:00:00"), o = orarioDel(d);
+  if (!o) return [];
+  const ini0 = aData(chiave, "00:00");
+  if (!coperto(ini0, piuGiorni(ini0, 1))) return null;
+  const ora = Date.now(), p = pausaDel(d), trovati = [];
+  for (let m = minDa(o[0]); m + durata <= minDa(o[1]); m += 15) {
+    if (p && m < minDa(p[1]) && m + durata > minDa(p[0])) continue;
+    const ini = aData(chiave, `${due(Math.floor(m / 60))}:${due(m % 60)}`).getTime(), fin = ini + durata * 60000;
+    if (ini < ora) continue;
+    if (risorsaPiena(chiave, ini, fin, usa, ignoraId)) continue;
+    const libere = libereAlle(chiave, ini, fin, ignoraId).filter(n => !operatrice || n === operatrice);
+    if (libere.length) trovati.push({ giorno: chiave, ora: oraDi(new Date(ini)), libere });
+  }
+  return trovati;
+}
+
+// --- Viste ---------------------------------------------------------------
+
+function disegna() {
+  document.querySelectorAll("#menu button").forEach(b => b.classList.toggle("attivo", b.dataset.vista === S.vista));
+  if (!S.cfg) return disegnaCollega();
+  ({ agenda: disegnaAgenda, promemoria: disegnaPromemoria, clienti: disegnaClienti, incassi: disegnaIncassi, impostazioni: disegnaImpostazioni })[S.vista]();
+}
+
+function disegnaCollega() {
+  $("main").innerHTML = `<div class="contenuto"><div class="scheda"><b>App non collegata</b>
+    <p class="tenue">Apri una volta il link di collegamento su questo dispositivo.</p></div></div>`;
+}
+
+function bannerRete() {
+  return S.erroreRete ? `<div class="giornata">Connessione assente: stai vedendo l'ultima copia salvata. Per ora non si possono salvare appuntamenti.</div>` : "";
+}
+
+function disegnaAgenda() {
+  nascondiFumetto();
+  S.opViste = operatriciViste();
+  ({ giorno: disegnaGiorno, settimana: disegnaSettimana, mese: disegnaMese, anno: disegnaAnno })[S.scala]();
+}
+
+function titoloVista() {
+  const d = S.giorno;
+  if (S.scala === "giorno") return giornoLungo(d);
+  if (S.scala === "mese") return d.toLocaleDateString("it-IT", { month: "long", year: "numeric" });
+  if (S.scala === "anno") return String(d.getFullYear());
+  const a = lunedi(d), b = piuGiorni(a, 6);
+  return a.getMonth() === b.getMonth()
+    ? `${a.getDate()}–${b.getDate()} ${b.toLocaleDateString("it-IT", { month: "long", year: "numeric" })}`
+    : `${a.getDate()} ${a.toLocaleDateString("it-IT", { month: "short" })} – ${b.getDate()} ${b.toLocaleDateString("it-IT", { month: "short", year: "numeric" })}`;
+}
+
+function barra(conta) {
+  return `<div class="barra">
+      <button id="ieri" aria-label="Indietro">‹</button>
+      <button id="oggi">Oggi</button>
+      <button id="domani" aria-label="Avanti">›</button>
+      <strong>${titoloVista()}</strong>
+      <span class="tenue contaGiorno" style="margin-left:auto">${conta}</span>
+      <div class="scale" role="group" aria-label="Vista">${Object.entries(NOMI_SCALA).map(([k, t]) => `<button data-scala="${k}" class="${k === S.scala ? "attiva" : ""}">${t}</button>`).join("")}</div>
+    </div>`;
+}
+
+function passo(dir) {
+  const d = S.giorno;
+  if (S.scala === "giorno") return piuGiorni(d, dir);
+  if (S.scala === "settimana") return piuGiorni(d, 7 * dir);
+  if (S.scala === "mese") return new Date(d.getFullYear(), d.getMonth() + dir, 1, 12);
+  return new Date(d.getFullYear() + dir, d.getMonth(), 1, 12);
+}
+
+const vaiAlGiorno = k => { S.scala = "giorno"; localStorage.setItem("agenda-scala", "giorno"); vaiA(new Date(k + "T12:00:00")); };
+
+function legaBarra() {
+  $("ieri").onclick = () => vaiA(passo(-1));
+  $("domani").onclick = () => vaiA(passo(1));
+  $("oggi").onclick = () => vaiA(new Date());
+  document.querySelectorAll("[data-scala]").forEach(b => b.onclick = () => {
+    S.scala = b.dataset.scala;
+    localStorage.setItem("agenda-scala", S.scala);
+    disegna(); assicura();
+  });
+  document.querySelectorAll("[data-giorno]").forEach(b => b.onclick = () => vaiA(new Date(b.dataset.giorno + "T12:00:00")));
+  document.querySelectorAll("[data-vai]").forEach(b => b.onclick = () => vaiAlGiorno(b.dataset.vai));
+  document.querySelectorAll("[data-zoom]").forEach(b => b.onclick = () => {
+    S.filtro = S.filtro === b.dataset.zoom ? "" : b.dataset.zoom;
+    localStorage.setItem("agenda-filtro", S.filtro);
+    disegna();
+  });
+}
+
+function legaApp() {
+  document.querySelectorAll("[data-app]").forEach(b => b.onclick = () => {
+    const a = S.appuntamenti.find(x => x.id === b.dataset.app && x.inizio === b.dataset.ini);
+    if (a) apriDettaglio(a);
+  });
+}
+
+const tabOperatrici = () => {
+  if (!S.opViste.includes(S.filtro)) S.filtro = "";
+  return S.opViste.map(n => `<button class="tab ${S.filtro === n ? "attiva" : ""}" data-zoom="${esc(n)}" style="${varColore(n)}" aria-pressed="${S.filtro === n}">${esc(n)}</button>`).join("");
+};
+const yDi = d => (d.getHours() * 60 + d.getMinutes() - ORA_INIZIO * 60) * PX_MIN;
+const visibileFiltro = a => !S.filtro || a.esterno || a.operatrice === S.filtro || a.operatrice === TUTTE;
+
+function disegnaSettimana() {
+  const chiave = "s" + chiaveGiorno(lunedi(S.giorno));
+  const scrollPrima = S.scrollFatto === chiave ? $("griglia")?.scrollTop : null;
+  const tab = tabOperatrici();
+  const oggi = chiaveGiorno(new Date());
+  const lun = lunedi(S.giorno);
+  const tutti = [...Array(7).keys()].map(i => piuGiorni(lun, i));
+  const voci = tutti.flatMap(d => delGiorno(chiaveGiorno(d)).filter(a => haOre(a) && visibileFiltro(a)));
+  const giorni = tutti.filter(d => orarioDel(d) || delGiorno(chiaveGiorno(d)).some(haOre));
+  const solo = !!S.filtro;
+  const corsie = solo ? [S.filtro] : S.opViste.concat(voci.some(a => a.esterno) ? [""] : []);
+  const altezza = (ORA_FINE - ORA_INIZIO) * 60 * PX_MIN;
+  const ore = [...Array(ORA_FINE - ORA_INIZIO).keys()].map(i => i ? `<div class="ora" style="top:${i * 60 * PX_MIN}px">${ORA_INIZIO + i}:00</div>` : "").join("");
+
+  const colonne = giorni.map(d => {
+    const k = chiaveGiorno(d), orario = orarioDel(d);
+    const fasce = fasceChiuse(d, altezza);
+    const chiuso = fasce.map(([a, b]) => `<div class="chiuso" style="top:${a}px;height:${b - a}px"></div>`).join("");
+    const blocchi = voci.filter(a => chiaveGiorno(new Date(a.inizio)) === k).map(a => {
+      const ini = new Date(a.inizio), fin = new Date(a.fine);
+      const c = Math.max(0, corsie.indexOf(a.esterno ? "" : a.operatrice));
+      const nome = a.esterno ? a.titolo : a.blocco ? `🔒 ${a.cliente}` : a.cliente;
+      const alto = (fin - ini) / 60000 * PX_MIN >= 30;     // nei blocchi bassi ci sta solo l'ora
+      const largo = a.operatrice === TUTTE;
+      const stile = `top:${yDi(ini)}px;height:${Math.max((fin - ini) / 60000 * PX_MIN - 1, 14)}px;left:${solo && a.esterno ? 60 : largo ? 0 : c / corsie.length * 100}%;right:auto;width:${solo && a.esterno ? 40 : largo ? 100 : 100 / corsie.length}%;${varColore(a.operatrice)}`;
+      return `<button class="app ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.operatrice === TUTTE ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${oraDi(ini)} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">
+        <b>${oraDi(ini)}</b>${alto ? `<span>${esc(a.blocco ? (largo || solo ? nome : "🔒") : solo && !a.esterno ? nomeCorto(nome) : String(nome).split(" ")[0])}</span>` : ""}</button>`;
+    }).join("");
+    return `<div class="colonna"><div class="pista" data-pg="${k}" style="height:${altezza}px;--oraPx:${60 * PX_MIN}px">${chiuso}${blocchi}</div></div>`;
+  }).join("");
+
+  const teste = giorni.map(d => `<button class="tab ${chiaveGiorno(d) === oggi ? "oggi" : ""}" data-vai="${chiaveGiorno(d)}" style="--c:var(--linea)">${d.toLocaleDateString("it-IT", { weekday: "short" })} ${d.getDate()}</button>`).join("");
+  $("main").innerHTML = `${bannerRete()}${barra(`${voci.filter(soloApp).length} appuntamenti`)}
+    <div class="filtri">${tab}</div>
+    <div class="scorre" id="griglia"><div class="testate"><div class="angolo"></div>${teste}</div>
+      <div class="grigliaZona sett ${solo ? "solo1" : ""}"><div class="ore">${ore}</div>${colonne}</div></div>`;
+  $("griglia").scrollTop = scrollPrima ?? Math.max(0, (9 * 60 - ORA_INIZIO * 60 - 30) * PX_MIN);
+  S.scrollFatto = chiave;
+  legaBarra(); legaApp();
+  document.querySelectorAll(".pista").forEach(p => p.onclick = e => {
+    if (e.target.closest(".app")) return;
+    const r = p.getBoundingClientRect();
+    const min = Math.round(((e.clientY - r.top) / PX_MIN + ORA_INIZIO * 60) / 15) * 15;
+    apriForm({ giorno: p.dataset.pg, ora: `${due(Math.floor(min / 60))}:${due(min % 60)}`, operatrice: S.filtro });
+  });
+}
+
+function disegnaMese() {
+  const tab = tabOperatrici();
+  const [ini] = rangeVista();
+  const meseQui = S.giorno.getMonth(), oggi = chiaveGiorno(new Date());
+  let totale = 0;
+  const celle = [...Array(42).keys()].map(i => {
+    const d = piuGiorni(ini, i), k = chiaveGiorno(d);
+    const voci = delGiorno(k).filter(a => haOre(a) && soloApp(a) && visibileFiltro(a));
+    const bloccato = delGiorno(k).some(a => a.blocco && visibileFiltro(a));
+    const dentro = d.getMonth() === meseQui;
+    if (dentro) totale += voci.length;
+    const barre = S.opViste.map(n => [n, voci.filter(a => a.operatrice === n).length]).filter(x => x[1])
+      .map(([n, q]) => `<i title="${esc(n)}: ${q}" style="flex:${q};${varColore(n)}"></i>`).join("");
+    return `<button class="cella ${dentro ? "" : "fuori"} ${orarioDel(d) ? "" : "chiusa"} ${k === oggi ? "oggi" : ""}" data-vai="${k}">
+      <span><b>${d.getDate()}</b></span>${voci.length ? `<small>${voci.length} app.</small>` : ""}${bloccato ? `<small>🔒 blocco</small>` : ""}<span class="barre">${barre}</span></button>`;
+  }).join("");
+  const teste = [...Array(7).keys()].map(i => `<div>${piuGiorni(ini, i).toLocaleDateString("it-IT", { weekday: "short" })}</div>`).join("");
+  $("main").innerHTML = `${bannerRete()}${barra(`${totale} appuntamenti`)}
+    <div class="filtri">${tab}</div><div class="testaMese">${teste}</div>
+    <div class="scorre" id="griglia"><div class="mese">${celle}</div></div>`;
+  legaBarra();
+}
+
+function disegnaAnno() {
+  const anno = S.giorno.getFullYear();
+  if (S.conteggi[anno] === undefined) caricaConteggi(anno);
+  const c = S.conteggi[anno];
+  const oggi = chiaveGiorno(new Date());
+  const massimo = Math.max(1, ...Object.values(c || {}));
+  const totale = Object.values(c || {}).reduce((t, n) => t + n, 0);
+  const mesi = [...Array(12).keys()].map(m => {
+    const primo = new Date(anno, m, 1), giorni = new Date(anno, m + 1, 0).getDate();
+    const vuoti = (primo.getDay() + 6) % 7;
+    let somma = 0;
+    const celle = [...Array(giorni).keys()].map(i => {
+      const k = `${anno}-${due(m + 1)}-${due(i + 1)}`, n = (c || {})[k] || 0;
+      somma += n;
+      const f = n / massimo;
+      const stile = n ? `--l:${Math.round(90 - f * 55)}%;--t:${f > .5 ? "#fff" : "inherit"}` : "";
+      return `<button data-vai="${k}" class="${k === oggi ? "oggi" : ""}" style="${stile}" title="${n} appuntamenti">${i + 1}</button>`;
+    }).join("");
+    return `<div class="miniMese"><button data-mese="${m}"><span>${primo.toLocaleDateString("it-IT", { month: "long" })}</span><span class="tenue">${somma || ""}</span></button>
+      <div class="miniGiorni">${"<span></span>".repeat(vuoti)}${celle}</div></div>`;
+  }).join("");
+  const conta = c ? `${totale} appuntamenti nell'anno` : S.erroreRete ? "Conteggio non disponibile" : "Sto contando…";
+  $("main").innerHTML = `${bannerRete()}${barra(conta)}
+    <div class="scorre" id="griglia"><div class="anno">${mesi}</div></div>`;
+  legaBarra();
+  document.querySelectorAll("[data-mese]").forEach(b => b.onclick = () => {
+    S.scala = "mese"; localStorage.setItem("agenda-scala", "mese");
+    vaiA(new Date(anno, +b.dataset.mese, 1, 12));
+  });
+}
+
+function disegnaGiorno() {
+  const scrollPrima = S.scrollFatto === chiaveGiorno(S.giorno) ? $("griglia")?.scrollTop : null;
+  const chiave = chiaveGiorno(S.giorno);
+  const oggi = chiaveGiorno(new Date());
+  const lun = lunedi(S.giorno);
+  const settimana = [...Array(7).keys()].map(i => {
+    const d = piuGiorni(lun, i), k = chiaveGiorno(d);
+    const n = delGiorno(k).filter(a => haOre(a) && soloApp(a)).length;
+    return `<button data-giorno="${k}" class="${k === chiave ? "scelto" : ""} ${k === oggi ? "oggi" : ""}">
+      ${d.toLocaleDateString("it-IT", { weekday: "short" })} ${d.getDate()}<small>${orarioDel(d) ? (n ? n + " app." : "libero") : "chiuso"}</small></button>`;
+  }).join("");
+
+  const delDi = delGiorno(chiave);
+  const conOre = delDi.filter(haOre);
+  const esterni = conOre.filter(a => a.esterno);
+  const colonne = S.imp.operatrici.map(n => ({ nome: n, voci: conOre.filter(a => !a.esterno && (a.operatrice === n || a.operatrice === TUTTE)) }));
+  [...new Set(conOre.filter(a => !a.esterno && a.operatrice !== TUTTE && !S.imp.operatrici.includes(a.operatrice)).map(a => a.operatrice))]
+    .forEach(n => colonne.push({ nome: n, voci: conOre.filter(a => !a.esterno && a.operatrice === n) }));
+  if (esterni.length) colonne.push({ nome: "Da Google Calendar", voci: esterni, esterna: true });
+
+  if (!S.opViste.includes(S.filtro)) S.filtro = "";
+  const visibili = S.filtro ? colonne.filter(c => c.nome === S.filtro || c.esterna) : colonne;
+  const testate = colonne.map(c => !c.esterna
+    ? `<button class="tab ${S.filtro === c.nome ? "attiva" : ""}" data-zoom="${esc(c.nome)}" style="${varColore(c.nome)}" aria-pressed="${S.filtro === c.nome}">${esc(c.nome)}</button>`
+    : (visibili.includes(c) ? `<div class="tab stretta" style="--c:#7c8796"><span class="cal1">Calendar</span><span class="cal2">Cal.</span></div>` : "")).join("");
+
+  const altezza = (ORA_FINE - ORA_INIZIO) * 60 * PX_MIN;
+  const y = d => (d.getHours() * 60 + d.getMinutes() - ORA_INIZIO * 60) * PX_MIN;
+  const orario = orarioDel(S.giorno);
+  const chiuso = fasceChiuse(S.giorno, altezza).map(([a, b]) => `<div class="chiuso" style="top:${a}px;height:${b - a}px"></div>`).join("");
+  const riga = chiave === oggi ? `<div class="adesso" style="top:${y(new Date())}px"></div>` : "";
+  const ore = [...Array(ORA_FINE - ORA_INIZIO).keys()].map(i => i ? `<div class="ora" style="top:${i * 60 * PX_MIN}px">${ORA_INIZIO + i}:00</div>` : "").join("");
+
+  const blocco = (a, sx, tot) => {
+    const ini = new Date(a.inizio), fin = new Date(a.fine);
+    const stile = `top:${y(ini)}px;height:${Math.max((fin - ini) / 60000 * PX_MIN - 2, 22)}px;left:calc(3px + ${sx / tot * 100}%);right:auto;width:calc(${100 / tot}% - 6px)`;
+    const nome = a.esterno ? a.titolo : a.blocco ? `🔒 ${a.cliente}` : a.cliente;
+    const segno = a.stato === "fatto" ? "✓ " : "";
+    const sotto = a.esterno ? "" : (a.servizi || []).join(", ");
+    return `<button class="app ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.operatrice === TUTTE ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}">
+      <b>${segno}${oraDi(ini)} <u class="lungo">${esc(nome)}</u><u class="corto">${esc(a.esterno || a.blocco ? nome : nomeCorto(nome))}</u>${(a.usa || []).includes("laser") ? `<i class="etichetta" style="font-style:normal">LASER</i>` : ""}</b><span>${esc(sotto)}</span></button>`;
+  };
+
+  // Gli eventi sovrapposti (capita solo su Calendar o con "salva lo stesso") si affiancano.
+  const blocchi = voci => {
+    const ordinate = [...voci].sort((p, q) => p.inizio < q.inizio ? -1 : 1);
+    const corsie = [];
+    const posti = ordinate.map(a => {
+      let c = corsie.findIndex(f => f <= a.inizio);
+      if (c < 0) { c = corsie.length; corsie.push(""); }
+      corsie[c] = a.fine;
+      return [a, c];
+    });
+    return posti.map(([a, c]) => blocco(a, c, corsie.length || 1)).join("");
+  };
+
+  const htmlColonne = visibili.map(c => `<div class="colonna ${c.esterna ? "stretta" : ""}">
+    <div class="pista" data-col="${c.esterna ? "" : esc(c.nome)}" style="height:${altezza}px;--oraPx:${60 * PX_MIN}px;${varColore(c.nome)}">${chiuso}${riga}${blocchi(c.voci)}</div></div>`).join("");
+
+  const giornate = delDi.filter(a => a.giornata).map(a => `<div class="giornata">Tutto il giorno: ${esc(a.titolo)}</div>`).join("");
+
+  $("main").innerHTML = `${bannerRete()}
+    ${barra(`${conOre.filter(soloApp).length} appuntamenti`)}
+    <div class="settimana">${settimana}</div>${giornate}
+    <div class="scorre" id="griglia"><div class="testate"><div class="angolo"></div>${testate}</div>
+      <div class="grigliaZona ${S.filtro ? "solo" : "compatta"}"><div class="ore">${ore}</div>${htmlColonne}</div></div>`;
+
+  const orariVisibili = orario ? minDa(orario[0]) : 9 * 60;
+  $("griglia").scrollTop = scrollPrima ?? Math.max(0, (orariVisibili - ORA_INIZIO * 60 - 30) * PX_MIN);
+  S.scrollFatto = chiave;
+
+  legaBarra(); legaApp();
+  document.querySelectorAll(".pista").forEach(p => p.onclick = e => {
+    if (e.target.closest(".app")) return;
+    const r = p.getBoundingClientRect();
+    const min = Math.round(((e.clientY - r.top) / PX_MIN + ORA_INIZIO * 60) / 15) * 15;
+    const operatrice = p.dataset.col && S.imp.operatrici.includes(p.dataset.col) ? p.dataset.col : S.imp.operatrici[0];
+    apriForm({ giorno: chiave, ora: `${due(Math.floor(min / 60))}:${due(min % 60)}`, operatrice });
+  });
+}
+
+function vaiA(d) {
+  S.giorno = d;
+  disegna();
+  assicura();
+}
+
+// --- Dettaglio appuntamento ----------------------------------------------
+
+function apriDialogo(html) { $("dlgDentro").innerHTML = html; if (!$("dlg").open) $("dlg").showModal(); $("dlg").scrollTop = 0; document.body.classList.add("modulo"); }
+const telefonoLink = t => `<a class="bottone" href="tel:${esc(String(t).replace(/[^\d+]/g, ""))}">Chiama</a>`;
+const chiudi = () => $("dlg").close();
+const giornoBreve = d => d.toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short" });
+
+// Gli appuntamenti presi insieme (stesso "giro"), dal primo all'ultimo. Senza giro: solo quello.
+const delGruppo = a => (a.gruppo ? S.appuntamenti.filter(x => !x.esterno && x.gruppo === a.gruppo) : [a])
+  .sort((p, q) => p.inizio < q.inizio ? -1 : 1);
+
+function testoConferma(lista) {
+  const voci = lista.map(a => { const d = new Date(a.inizio); return `• ${giornoLungo(d)} alle ${oraDi(d)}: ${(a.servizi || []).join(", ")}`; }).join("\n");
+  return (S.imp.conferma || IMPOSTAZIONI_PARTENZA.conferma)
+    .replaceAll("{nome}", (lista[0].cliente || "").split(" ")[0])
+    .replaceAll("{appuntamenti}", voci);
+}
+
+// Apre WhatsApp col riepilogo e segna su ognuno che la conferma è stata chiesta.
+async function chiediConferma(lista) {
+  const futuri = lista.filter(a => new Date(a.fine) > new Date() && a.stato !== "noshow");
+  const daMandare = futuri.length ? futuri : lista;
+  if (!numeroWa(daMandare[0].telefono)) return avviso("Manca il numero di telefono");
+  apriWa(daMandare[0].telefono, testoConferma(daMandare));
+  const ora = new Date().toISOString();
+  for (const a of daMandare) await salvaServer({ ...a, conferma: ora }, true);
+}
+
+function statoConferma(a) {
+  if (a.confermato) return `<div class="conferma si">✓ La cliente ha confermato</div>`;
+  if (a.conferma) return `<div class="conferma">Conferma chiesta ${giornoBreve(new Date(a.conferma))} alle ${oraDi(new Date(a.conferma))}, ancora senza risposta</div>`;
+  return `<div class="conferma tenue">Conferma non ancora chiesta</div>`;
+}
+
+function apriDettaglio(a) {
+  const ini = new Date(a.inizio), fin = new Date(a.fine);
+  const quando = `${giornoLungo(ini)}, ${oraDi(ini)}–${oraDi(fin)}`;
+  if (a.blocco) return apriBlocco({ modifica: a });
+  if (a.esterno) {
+    return apriDialogo(`<h2>${esc(a.titolo)}</h2><p class="tenue">${quando}</p>
+      <p>È stato scritto direttamente su Google Calendar: si modifica da lì.</p>
+      <div class="azioni"><button id="x">Chiudi</button></div>`), $("x").onclick = chiudi;
+  }
+  const gruppo = delGruppo(a);
+  const altri = gruppo.filter(x => x.id !== a.id);
+  apriDialogo(`<h2>${esc(a.cliente)}</h2><p class="tenue" style="margin:0">${quando}<br>${esc(a.operatrice)} · ${euro(a.prezzo || 0)}</p>
+    <p>${esc((a.servizi || []).join(", "))}</p>
+    ${a.note ? `<p class="tenue">Nota: ${esc(a.note)}</p>` : ""}
+    ${altri.length ? `<div class="presi"><b>Preso insieme a:</b>${altri.map(x => `<div>${giornoBreve(new Date(x.inizio))} ${oraDi(new Date(x.inizio))} · ${esc((x.servizi || []).join(", "))} · ${esc(x.operatrice)}</div>`).join("")}</div>` : ""}
+    ${statoConferma(a)}
+    <div class="azioni">
+      <button id="dFatto">${a.stato === "fatto" ? "Rimetti da fare" : "Fatto"}</button>
+      <button id="dNo">${a.stato === "noshow" ? "Era presente" : "Non è venuta"}</button>
+      <button id="dMod">Modifica</button>
+      ${a.telefono ? `${telefonoLink(a.telefono)}<button id="dWa" class="wa">WhatsApp</button>` : ""}
+    </div>
+    <div class="azioni">
+      ${a.telefono ? `<button id="dConf" class="wa">${a.conferma ? "Richiedi conferma" : "Chiedi conferma"}${altri.length ? ` (${gruppo.length} app.)` : ""}</button>` : ""}
+      <button id="dOk">${a.confermato ? "Togli conferma" : "Ha confermato"}</button>
+      <button id="dAltro">+ Altro appuntamento per lei</button>
+    </div>
+    <div class="azioni">
+      <button id="dDel" class="pericolo">Cancella</button>
+      <button id="dChiudi" style="margin-left:auto">Chiudi</button>
+    </div>`);
+  const cambiaStato = async st => {
+    const r = await salvaServer({ ...a, stato: a.stato === st ? "prenotato" : st }, true);
+    if (r) chiudi();
+  };
+  $("dFatto").onclick = () => cambiaStato("fatto");
+  $("dNo").onclick = () => cambiaStato("noshow");
+  $("dMod").onclick = () => apriForm({ modifica: a });
+  $("dChiudi").onclick = chiudi;
+  if ($("dWa")) $("dWa").onclick = () => apriWa(a.telefono);
+  if ($("dConf")) $("dConf").onclick = async () => { await chiediConferma(gruppo); chiudi(); };
+  $("dOk").onclick = async () => {
+    // Una risposta "OK" vale per tutto il giro preso insieme.
+    for (const x of gruppo) await salvaServer({ ...x, confermato: !a.confermato }, true);
+    chiudi(); avviso(a.confermato ? "Conferma tolta" : "Segnato: ha confermato");
+  };
+  $("dAltro").onclick = () => apriForm({
+    cliente: { id: a.clienteId, nome: a.cliente, telefono: a.telefono },
+    giorno: chiaveGiorno(fin), ora: oraDi(fin), gruppo: a.gruppo || "",
+  });
+  let sicuro = false;
+  $("dDel").onclick = async () => {
+    if (!sicuro) { sicuro = true; $("dDel").textContent = "Tocca ancora per cancellare"; return; }
+    try {
+      const r = await api("eliminaAppuntamento", { id: a.id });
+      if (!r.ok) throw new Error();
+      S.appuntamenti = S.appuntamenti.filter(x => x.id !== a.id);
+      S.scritture++; viaCopia(chiaveCopia(a)); scriviCopia();
+      chiudi(); disegna(); avviso("Appuntamento cancellato");
+    } catch (e) { avviso("Non cancellato: controlla la connessione"); }
+  };
+}
+
+async function salvaServer(app, forza) {
+  try {
+    const r = await api("salvaAppuntamento", { appuntamento: app, forza: !!forza, operatrici: S.imp.operatrici.length, risorse: S.imp.risorse });
+    if (r.ok) S.conteggi = {};
+    if (r.ok) {
+      S.appuntamenti = S.appuntamenti.filter(x => x.id !== r.appuntamento.id);
+      S.appuntamenti.push(r.appuntamento);
+      S.scritture++; notaCopia(r.appuntamento); scriviCopia();
+      disegna();
+      return r.appuntamento;
+    }
+    if (r.errore === "conflitto") return { conflitti: r.conflitti, risorsa: r.risorsa };
+    avviso({ orario: "Controlla l'orario: la fine viene prima dell'inizio", "troppi-servizi": "Troppi trattamenti su un solo appuntamento: dividilo in due", sparito: "Questo appuntamento non esiste più su Google Calendar" }[r.errore] || "Non salvato, riprova");
+    if (r.errore === "sparito") carica();
+  } catch (e) { avviso("Non salvato: controlla la connessione"); }
+  return null;
+}
+
+// --- Modulo appuntamento -------------------------------------------------
+// gruppo: id del giro di appuntamenti presi insieme per la stessa cliente.
+// servizi: trattamenti già scelti (per "stesso trattamento un altro giorno").
+
+function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi } = {}) {
+  const orario = orarioDel(S.giorno);
+  const F = {
+    id: modifica?.id,
+    clienteId: modifica?.clienteId || cliente?.id || "",
+    nome: modifica?.cliente || cliente?.nome || "",
+    telefono: modifica?.telefono || cliente?.telefono || "",
+    nuova: false,
+    servizi: (modifica?.servizi || servizi || []).map(n => S.imp.servizi.find(s => s.nome === n) || { nome: n, minuti: 0, prezzo: 0 }),
+    giorno: modifica ? chiaveGiorno(new Date(modifica.inizio)) : (giorno || chiaveGiorno(S.giorno)),
+    ora: modifica ? oraDi(new Date(modifica.inizio)) : (ora || (orario ? orario[0] : "09:00")),
+    minuti: modifica ? (new Date(modifica.fine) - new Date(modifica.inizio)) / 60000 : 30,
+    minutiManuali: !!modifica,
+    prezzo: modifica?.prezzo ?? 0,
+    operatrice: modifica?.operatrice || operatrice || (S.imp.operatrici.length > 1 ? "" : S.imp.operatrici[0]),
+    note: modifica?.note || "",
+    stato: modifica?.stato || "prenotato",
+    promemoria: modifica?.promemoria || "",
+    conferma: modifica?.conferma || "", confermato: !!modifica?.confermato,
+    gruppo: modifica?.gruppo || gruppo || "",
+    cercaS: "",
+  };
+  // Il mese della disponibilità parte da quello del giorno scelto.
+  const g0 = new Date(F.giorno + "T12:00:00");
+  F.mese = new Date(g0.getFullYear(), g0.getMonth(), 1, 12);
+  const presi = F.gruppo && !modifica ? delGruppo({ gruppo: F.gruppo }) : [];
+
+  apriDialogo(`<h2>${modifica ? "Modifica appuntamento" : presi.length ? "Un altro appuntamento" : "Nuovo appuntamento"}</h2>
+    ${modifica ? "" : `<button id="fBlocca" type="button">🔒 Blocca questo orario</button>`}
+    ${presi.length ? `<div class="presi"><b>Già presi insieme:</b>${presi.map(x => `<div>${giornoBreve(new Date(x.inizio))} ${oraDi(new Date(x.inizio))} · ${esc((x.servizi || []).join(", "))} · ${esc(x.operatrice)}</div>`).join("")}</div>` : ""}
+    <label for="fCliente">Cliente</label>
+    <div id="zonaCliente"></div>
+    <label for="fCerca">Trattamenti</label>
+    <div id="fScelti"></div>
+    <input id="fCerca" placeholder="Cerca: semi, ceretta, massaggio…" autocomplete="off">
+    <div id="fLista" class="lista" hidden></div>
+    <div ${S.imp.operatrici.length < 2 ? "hidden" : ""}><label>Operatrice</label><div class="ope" id="fOp"></div></div>
+    <label>Disponibilità</label>
+    <div class="calDisp" id="fCal"></div>
+    <div class="liberi" id="fLiberi"></div>
+    <div class="due">
+      <div><label for="fGiorno">Giorno</label><input id="fGiorno" type="date" value="${F.giorno}"></div>
+      <div><label for="fOra">Ora</label><input id="fOra" type="time" step="300" value="${F.ora}"></div>
+      <div><label for="fMin">Durata (minuti)</label><input id="fMin" type="number" min="5" step="5" inputmode="numeric" value="${F.minuti}"></div>
+    </div>
+    <label for="fNote">Note</label>
+    <input id="fNote" maxlength="300" value="${esc(F.note)}">
+    <div class="totale"><span id="fDurata"></span><span id="fPrezzo"></span></div>
+    <div id="fAvviso"></div>
+    <div class="azioni">
+      <button id="fAnnulla">Annulla</button>
+      <button id="fSalva" class="pieno" style="margin-left:auto">Salva appuntamento</button>
+    </div>`);
+
+  const disegnaOp = () => {
+    const scelte = [["", "Chiunque"], ...S.imp.operatrici.map(n => [n, n])];
+    $("fOp").innerHTML = scelte.map(([v, t]) => `<button type="button" data-op="${esc(v)}" class="${v === F.operatrice ? "attiva" : ""}" style="${v ? varColore(v) : ""}">${esc(t)}</button>`).join("");
+    document.querySelectorAll("[data-op]").forEach(b => b.onclick = () => { F.operatrice = b.dataset.op; disegnaOp(); ricalcola(); });
+  };
+
+  // Calendario del mese: ogni giorno aperto ha una barretta (verde = tanto posto, gialla = poco, grigia = pieno).
+  // Sotto, gli orari liberi del giorno scelto, per la durata e l'operatrice scelte.
+  const disegnaDisp = () => {
+    const usa = usoDi(F.servizi), op = F.operatrice || null, durata = F.minuti;
+    const m = F.mese, primo = lunedi(m), ultimo = new Date(m.getFullYear(), m.getMonth() + 1, 0, 12);
+    const settimane = Math.round((lunedi(ultimo) - primo) / 86400000 / 7) + 1;
+    const fine = piuGiorni(primo, settimane * 7);
+    const pronto = coperto(primo, fine);
+    if (!pronto) caricaFinestra(primo, fine).then(ok => {
+      if (!$("fCal")) return;
+      if (ok) disegnaDisp(); else $("fLiberi").innerHTML = `<span class="tenue">Disponibilità di questo mese non caricata: controlla la connessione.</span>`;
+    });
+    const oggi = chiaveGiorno(new Date());
+    const celle = [...Array(settimane * 7).keys()].map(i => {
+      const d = piuGiorni(primo, i), k = chiaveGiorno(d);
+      if (d.getMonth() !== m.getMonth()) return `<span class="fuoriM"></span>`;
+      const cls = [k === F.giorno ? "sceltoG" : "", k === oggi ? "oggiG" : ""];
+      let titolo = "";
+      if (!orarioDel(d)) { cls.push("chiusoG"); titolo = "chiuso"; }
+      else if (k < oggi) { cls.push("gPieno"); titolo = "passato"; }
+      else if (pronto) {
+        const liberi = slotLiberi(k, durata, op, F.id, usa) || [];
+        const o = orarioDel(d), tot = Math.max(1, (minDa(o[1]) - minDa(o[0]) - durata) / 15 + 1);
+        cls.push(!liberi.length ? "gPieno" : liberi.length / tot < .35 ? "gPochi" : "gLibero");
+        titolo = liberi.length ? `${liberi.length} orari liberi` : "pieno";
+      }
+      return `<button type="button" class="${cls.join(" ")}" data-dg="${k}" title="${titolo}" aria-label="${d.getDate()} ${titolo}">${d.getDate()}<i></i></button>`;
+    }).join("");
+    const teste = [...Array(7).keys()].map(i => `<span class="gs">${piuGiorni(primo, i).toLocaleDateString("it-IT", { weekday: "short" }).slice(0, 3)}</span>`).join("");
+    $("fCal").innerHTML = `<div class="calTesta"><button type="button" id="cmPrima" aria-label="Mese prima">‹</button>
+        <strong>${m.toLocaleDateString("it-IT", { month: "long", year: "numeric" })}</strong>
+        <button type="button" id="cmDopo" aria-label="Mese dopo">›</button></div>
+      <div class="calGriglia">${teste}${celle}</div>
+      <div class="legenda"><span><i style="background:#2e9e64"></i>libero</span><span><i style="background:#d39b17"></i>quasi pieno</span><span><i style="background:#c9c0c6"></i>pieno</span>${pronto ? "" : "<span>Sto caricando…</span>"}</div>`;
+    $("cmPrima").onclick = () => { F.mese = new Date(m.getFullYear(), m.getMonth() - 1, 1, 12); disegnaDisp(); };
+    $("cmDopo").onclick = () => { F.mese = new Date(m.getFullYear(), m.getMonth() + 1, 1, 12); disegnaDisp(); };
+    $("fCal").querySelectorAll("[data-dg]").forEach(b => b.onclick = () => { F.giorno = b.dataset.dg; $("fGiorno").value = F.giorno; disegnaDisp(); });
+
+    const liberi = slotLiberi(F.giorno, durata, op, F.id, usa);
+    const dG = new Date(F.giorno + "T12:00:00");
+    $("fLiberi").innerHTML = liberi === null ? `<span class="tenue">Sto caricando gli orari…</span>`
+      : !orarioDel(dG) ? `<span class="tenue">${giornoBreve(dG)}: chiuso</span>`
+      : liberi.length ? `<span class="tenue" style="width:100%">Orari liberi ${giornoBreve(dG)}${op ? " con " + esc(op) : ""}, per ${durataTesto(durata)}:</span>` + liberi.map((p, i) =>
+        `<button type="button" data-lib="${i}" class="${p.ora === F.ora ? "sceltoO" : ""}" title="Libere: ${esc(p.libere.join(", "))}">${S.imp.operatrici.length > 1 && !op ? p.libere.map(n => `<i class="pallino" style="${varColore(n)}"></i>`).join("") : ""}${p.ora}</button>`).join("")
+      : `<span class="tenue">${giornoBreve(dG)}: nessun orario libero per ${durataTesto(durata)}${op ? " con " + esc(op) : ""}</span>`;
+    $("fLiberi").querySelectorAll("[data-lib]").forEach(b => b.onclick = () => {
+      const p = liberi[+b.dataset.lib];
+      F.ora = p.ora; $("fOra").value = p.ora;
+      if (!F.operatrice || !p.libere.includes(F.operatrice)) { F.operatrice = p.libere[0]; disegnaOp(); }
+      disegnaDisp(); avviso(`${p.ora} con ${F.operatrice}`);
+    });
+  };
+
+  const ricalcola = () => {
+    if (!F.minutiManuali && F.servizi.length) {
+      F.minuti = Math.ceil(F.servizi.reduce((t, s) => t + s.minuti, 0) / 5) * 5;
+      $("fMin").value = F.minuti;
+    }
+    F.prezzo = modifica && F.servizi.every(s => !s.prezzo) ? modifica.prezzo : F.servizi.reduce((t, s) => t + s.prezzo, 0);
+    $("fDurata").textContent = durataTesto(F.minuti);
+    $("fPrezzo").textContent = euro(F.prezzo);
+    $("fScelti").innerHTML = F.servizi.map((s, i) => `<span class="chip">${esc(s.nome)}<button aria-label="Togli ${esc(s.nome)}" data-togli="${i}">×</button></span>`).join("");
+    document.querySelectorAll("[data-togli]").forEach(b => b.onclick = () => { F.servizi.splice(+b.dataset.togli, 1); F.minutiManuali = false; ricalcola(); });
+    disegnaDisp();
+  };
+
+  const zonaCliente = () => {
+    if (F.clienteId || F.nuova) {
+      $("zonaCliente").innerHTML = F.nuova
+        ? `<div class="due"><input id="nNome" placeholder="Nome e cognome" value="${esc(F.nome)}"><input id="nTel" type="tel" placeholder="Telefono" value="${esc(F.telefono)}"></div>
+           <label class="riga"><input id="nCons" type="checkbox"> Ha dato il consenso ai promemoria su WhatsApp</label>`
+        : `<span class="chip">${esc(F.nome)}${F.telefono ? " · " + esc(F.telefono) : ""}<button id="cCambia" aria-label="Cambia cliente">×</button></span>`;
+      if ($("cCambia")) $("cCambia").onclick = () => { F.clienteId = ""; F.nome = ""; F.telefono = ""; zonaCliente(); };
+      return;
+    }
+    $("zonaCliente").innerHTML = `<input id="fCliente" placeholder="Cerca nome o telefono" autocomplete="off"><div id="cLista" class="lista" hidden></div>`;
+    $("fCliente").oninput = e => {
+      const q = normalizza(e.target.value.trim());
+      const trovate = q ? S.clienti.filter(c => normalizza(c.nome + " " + c.telefono).includes(q)).slice(0, 8) : [];
+      const l = $("cLista");
+      l.hidden = !q;
+      l.innerHTML = trovate.map(c => `<button data-c="${esc(c.id)}"><span>${esc(c.nome)}</span><span class="tenue">${esc(c.telefono)}</span></button>`).join("")
+        + `<button id="cNuova"><b>+ Nuova cliente: ${esc(e.target.value)}</b></button>`;
+      l.querySelectorAll("[data-c]").forEach(b => b.onclick = () => {
+        const c = S.clienti.find(x => x.id === b.dataset.c);
+        F.clienteId = c.id; F.nome = c.nome; F.telefono = c.telefono; zonaCliente();
+      });
+      $("cNuova").onclick = () => {
+        const v = e.target.value.trim();
+        F.nuova = true;
+        if (/^[\d\s+]+$/.test(v)) F.telefono = v; else F.nome = v;
+        zonaCliente();
+      };
+    };
+  };
+
+  const listaServizi = () => {
+    const q = normalizza(F.cercaS.trim());
+    const l = $("fLista");
+    l.hidden = !q;
+    if (!q) return;
+    const trovati = S.imp.servizi.filter(s => normalizza(s.categoria + " " + s.nome).includes(q));
+    let cat = "", html = "";
+    trovati.forEach(s => {
+      if (s.categoria !== cat) { cat = s.categoria; html += `<div class="cat">${esc(cat)}</div>`; }
+      html += `<button data-s="${esc(s.nome)}"><span>${esc(s.nome)}</span><span class="tenue">${s.minuti} min · ${euro(s.prezzo)}</span></button>`;
+    });
+    l.innerHTML = html || `<div class="cat">Nessun trattamento trovato</div>`;
+    l.querySelectorAll("[data-s]").forEach(b => b.onclick = () => {
+      F.servizi.push(S.imp.servizi.find(s => s.nome === b.dataset.s));
+      F.minutiManuali = false;
+      F.cercaS = ""; $("fCerca").value = ""; l.hidden = true;
+      ricalcola(); $("fCerca").focus();
+    });
+  };
+
+  $("fCerca").oninput = e => { F.cercaS = e.target.value; listaServizi(); };
+  $("fGiorno").onchange = e => {
+    F.giorno = e.target.value;
+    if (F.giorno) { const d = new Date(F.giorno + "T12:00:00"); F.mese = new Date(d.getFullYear(), d.getMonth(), 1, 12); disegnaDisp(); }
+  };
+  $("fOra").onchange = e => { F.ora = e.target.value; disegnaDisp(); };
+  $("fMin").onchange = e => { F.minuti = Math.max(5, +e.target.value || 5); F.minutiManuali = true; ricalcola(); };
+  $("fNote").oninput = e => F.note = e.target.value;
+  $("fAnnulla").onclick = chiudi;
+  if ($("fBlocca")) $("fBlocca").onclick = () => apriBlocco({ giorno: F.giorno, ora: F.ora, operatrice: F.operatrice });
+
+  const salva = async forza => {
+    if (F.nuova) {
+      F.nome = $("nNome").value.trim(); F.telefono = $("nTel").value.trim();
+      if (!F.nome) return mostra("Scrivi il nome della cliente");
+      const doppia = F.telefono && S.clienti.find(c => c.telefono.replace(/\D/g, "") === F.telefono.replace(/\D/g, ""));
+      if (doppia) return mostra(`Questo numero è già di ${doppia.nome}: cercala nell'elenco.`);
+    }
+    if (!F.clienteId && !F.nuova) return mostra("Scegli la cliente");
+    if (!F.servizi.length) return mostra("Scegli almeno un trattamento");
+    if (!F.giorno || !F.ora) return mostra("Scegli giorno e ora");
+    const inizio = aData(F.giorno, F.ora), fineMs = inizio.getTime() + F.minuti * 60000;
+    const fuori = !forza && fuoriOrario(F.giorno, inizio.getTime(), fineMs);
+    if (fuori) {
+      $("fAvviso").innerHTML = `<div class="avviso"><b>${fuori === "pausa" ? "Quell'orario cade nella pausa." : "Quell'orario è fuori dall'apertura."}</b>
+        <div class="azioni"><button id="fForza">Salva lo stesso</button></div></div>`;
+      $("fForza").onclick = () => salva(true);
+      return $("fAvviso").scrollIntoView({ block: "center" });
+    }
+    $("fSalva").disabled = true;
+    try {
+      if (F.nuova) {
+        const c = { id: nuovoId(), nome: F.nome, telefono: F.telefono, email: "", note: "", consenso: $("nCons").checked };
+        const r = await api("salvaCliente", { cliente: c });
+        if (!r.ok) throw new Error();
+        S.clienti.push(c); F.clienteId = c.id; F.nuova = false; zonaCliente();
+      }
+      if (!F.operatrice) {
+        const libere = libereAlle(F.giorno, inizio.getTime(), fineMs, F.id);
+        if (!libere.length) { $("fSalva").disabled = false; return mostra("A quell'ora sono tutte occupate: scegli un altro orario."); }
+        F.operatrice = libere[0];
+      }
+      // Ogni appuntamento nuovo apre un giro: quelli presi dopo per la stessa cliente ci si aggiungono.
+      if (!F.gruppo && !modifica) F.gruppo = nuovoId();
+      const r = await salvaServer({
+        id: F.id, clienteId: F.clienteId, cliente: F.nome, telefono: F.telefono,
+        servizi: F.servizi.map(s => s.nome), inizio: inizio.toISOString(),
+        fine: new Date(fineMs).toISOString(),
+        usa: usoDi(F.servizi), operatrice: F.operatrice, prezzo: F.prezzo, note: F.note, stato: F.stato, promemoria: F.promemoria,
+        gruppo: F.gruppo, conferma: F.conferma, confermato: F.confermato,
+      }, forza);
+      if (r?.conflitti) {
+        const nomi = r.conflitti.map(c => `${oraDi(new Date(c.inizio))} ${c.cliente || c.titolo}`).join(", ");
+        $("fAvviso").innerHTML = `<div class="avviso"><b>${r.risorsa ? NOMI_RISORSE[r.risorsa] : "Quel posto è già preso"}:</b> ${esc(nomi)}
+          <div class="azioni"><button id="fForza">Salva lo stesso</button></div></div>`;
+        $("fForza").onclick = () => salva(true);
+        $("fAvviso").scrollIntoView({ block: "center" });
+      } else if (r) {
+        S.giorno = new Date(r.inizio);
+        disegna();
+        if (modifica) { chiudi(); avviso("Appuntamento salvato"); }
+        else dopoSalvato(r);
+        return;
+      }
+    } catch (e) { mostra("Non salvato: controlla la connessione"); }
+    $("fSalva").disabled = false;
+  };
+  const mostra = t => { $("fAvviso").innerHTML = `<div class="avviso errore">${esc(t)}</div>`; $("fAvviso").scrollIntoView({ block: "center" }); };
+  $("fSalva").onclick = () => salva(false);
+  zonaCliente(); disegnaOp(); ricalcola();
+  // Sul telefono la tastiera aperta subito coprirebbe il modulo.
+  if (!matchMedia("(pointer:coarse)").matches) ($("fCliente") || $("fCerca")).focus();
+}
+
+// Dopo un appuntamento nuovo: se ne aggiunge un altro per la stessa cliente, o si chiede la conferma.
+function dopoSalvato(a) {
+  const gruppo = delGruppo(a), fin = new Date(a.fine), ini = new Date(a.inizio);
+  const cliente = { id: a.clienteId, nome: a.cliente, telefono: a.telefono };
+  apriDialogo(`<h2>Appuntamento salvato ✓</h2>
+    <div class="presi"><b>${esc(a.cliente)}${gruppo.length > 1 ? ` · ${gruppo.length} appuntamenti presi insieme` : ""}</b>
+      ${gruppo.map(x => `<div>${giornoBreve(new Date(x.inizio))} ${oraDi(new Date(x.inizio))}–${oraDi(new Date(x.fine))} · ${esc((x.servizi || []).join(", "))} · ${esc(x.operatrice)}</div>`).join("")}</div>
+    <p class="tenue" style="margin:10px 0 4px">Deve prendere altro?</p>
+    <div class="azioni" style="margin-top:4px">
+      <button id="dsDopo">+ Altro trattamento dopo, alle ${oraDi(fin)}</button>
+      <button id="dsGiorno">+ Stesso trattamento un altro giorno</button>
+    </div>
+    ${a.telefono ? `<p class="tenue" style="margin:14px 0 4px">Quando ha preso tutto:</p>
+    <div class="azioni" style="margin-top:4px"><button id="dsConf" class="wa">Manda il riepilogo e chiedi conferma</button></div>` : ""}
+    <div class="azioni"><button id="dsFine" class="pieno" style="margin-left:auto">Fine</button></div>`);
+  $("dsDopo").onclick = () => apriForm({ cliente, giorno: chiaveGiorno(fin), ora: oraDi(fin), gruppo: a.gruppo });
+  $("dsGiorno").onclick = () => apriForm({ cliente, giorno: chiaveGiorno(piuGiorni(ini, 7)), ora: oraDi(ini), operatrice: a.operatrice, gruppo: a.gruppo, servizi: a.servizi });
+  if ($("dsConf")) $("dsConf").onclick = async () => { await chiediConferma(delGruppo(a)); chiudi(); avviso("Conferma chiesta"); };
+  $("dsFine").onclick = chiudi;
+}
+
+// --- Blocco orario -------------------------------------------------------
+
+function apriBlocco({ giorno, ora, operatrice, modifica } = {}) {
+  const dopoUnOra = o => { const m = Math.min(minDa(o) + 60, 23 * 60 + 45); return `${due(Math.floor(m / 60))}:${due(m % 60)}`; };
+  const inizio = modifica ? new Date(modifica.inizio) : null, fine = modifica ? new Date(modifica.fine) : null;
+  const B = {
+    giorno: modifica ? chiaveGiorno(inizio) : (giorno || chiaveGiorno(S.giorno)),
+    dalle: modifica ? oraDi(inizio) : (ora || "09:00"),
+    alle: modifica ? oraDi(fine) : dopoUnOra(ora || "09:00"),
+    per: modifica ? modifica.operatrice : (operatrice || TUTTE),
+    motivo: modifica && modifica.cliente !== "Bloccato" ? modifica.cliente : "",
+  };
+  apriDialogo(`<h2>${modifica ? "Orario bloccato" : "Blocca un orario"}</h2>
+    <p class="tenue" style="margin:0">In questo orario non si possono prendere appuntamenti.</p>
+    <label for="bMotivo">Motivo (facoltativo)</label>
+    <input id="bMotivo" maxlength="60" placeholder="Pausa, formazione, tempo libero…" value="${esc(B.motivo)}">
+    <label>Per chi</label><div class="ope" id="bPer"></div>
+    <div class="due tre">
+      <div><label for="bGiorno">Giorno</label><input id="bGiorno" type="date" value="${B.giorno}"></div>
+      <div><label for="bDalle">Dalle</label><input id="bDalle" type="time" step="300" value="${B.dalle}"></div>
+      <div><label for="bAlle">Alle</label><input id="bAlle" type="time" step="300" value="${B.alle}"></div>
+    </div>
+    <div id="bAvviso"></div>
+    ${modifica ? `<div class="azioni"><button id="bVia" class="pericolo">Sblocca</button></div>` : ""}
+    <div class="azioni"><button id="bAnnulla">Chiudi</button><button id="bSalva" class="pieno" style="margin-left:auto">${modifica ? "Salva" : "Blocca"}</button></div>`);
+
+  const disegnaPer = () => {
+    const scelte = [[TUTTE, "Tutte"], ...S.imp.operatrici.map(n => [n, n])];
+    if (!scelte.some(([v]) => v === B.per)) scelte.push([B.per, B.per]);
+    $("bPer").innerHTML = scelte.map(([v, t]) => `<button type="button" data-per="${esc(v)}" class="${v === B.per ? "attiva" : ""}" style="${v === TUTTE ? "" : varColore(v)}">${esc(t)}</button>`).join("");
+    document.querySelectorAll("[data-per]").forEach(b => b.onclick = () => { B.per = b.dataset.per; disegnaPer(); });
+  };
+  disegnaPer();
+  const mostra = t => $("bAvviso").innerHTML = `<div class="avviso errore">${esc(t)}</div>`;
+  $("bAnnulla").onclick = chiudi;
+
+  const salva = async forza => {
+    const g = $("bGiorno").value, da = $("bDalle").value, a = $("bAlle").value;
+    if (!g || !da || !a) return mostra("Scegli giorno e orario");
+    if (a <= da) return mostra("L'orario di fine viene prima dell'inizio");
+    $("bSalva").disabled = true;
+    const r = await salvaServer({
+      id: modifica?.id, blocco: true, cliente: $("bMotivo").value.trim() || "Bloccato", servizi: [], usa: [], prezzo: 0,
+      operatrice: B.per, stato: "prenotato", inizio: aData(g, da).toISOString(), fine: aData(g, a).toISOString(),
+    }, forza);
+    $("bSalva").disabled = false;
+    if (r?.conflitti) {
+      const nomi = r.conflitti.map(c => `${oraDi(new Date(c.inizio))} ${c.cliente || c.titolo}`).join(", ");
+      $("bAvviso").innerHTML = `<div class="avviso"><b>In quell'orario ci sono già:</b> ${esc(nomi)}
+        <div class="azioni"><button id="bForza">Blocca lo stesso</button></div></div>`;
+      $("bForza").onclick = () => salva(true);
+    } else if (r) {
+      S.giorno = new Date(r.inizio);
+      chiudi(); disegna(); avviso("Orario bloccato");
+    }
+  };
+  $("bSalva").onclick = () => salva(false);
+
+  if (modifica) {
+    let sicuro = false;
+    $("bVia").onclick = async () => {
+      if (!sicuro) { sicuro = true; $("bVia").textContent = "Tocca ancora per sbloccare"; return; }
+      try {
+        const r = await api("eliminaAppuntamento", { id: modifica.id });
+        if (!r.ok) throw new Error();
+        S.appuntamenti = S.appuntamenti.filter(x => x.id !== modifica.id);
+        S.scritture++; viaCopia(chiaveCopia(modifica)); scriviCopia();
+        S.conteggi = {};
+        chiudi(); disegna(); avviso("Orario sbloccato");
+      } catch (e) { mostra("Non sbloccato: controlla la connessione"); }
+    };
+  }
+}
+
+// --- Promemoria ----------------------------------------------------------
+
+function numeroWa(t) {
+  let n = String(t || "").replace(/\D/g, "");
+  if (n.startsWith("00")) n = n.slice(2);
+  if (/^3\d{8,9}$/.test(n)) n = "39" + n;
+  return n;
+}
+
+function apriWa(telefono, testo) {
+  const n = numeroWa(telefono);
+  if (!n) return avviso("Manca il numero di telefono");
+  window.open(`https://wa.me/${n}${testo ? "?text=" + encodeURIComponent(testo) : ""}`, "_blank");
+}
+
+function testoPromemoria(a) {
+  const d = new Date(a.inizio);
+  return S.imp.promemoria
+    .replaceAll("{nome}", (a.cliente || "").split(" ")[0])
+    .replaceAll("{giorno}", d.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" }))
+    .replaceAll("{ora}", oraDi(d));
+}
+
+function disegnaPromemoria() {
+  // Il prossimo giorno di apertura, così il sabato si preparano i messaggi del lunedì.
+  let g = piuGiorni(new Date(), 1);
+  for (let i = 0; i < 7 && !orarioDel(g); i++) g = piuGiorni(g, 1);
+  S.giornoProm = S.giornoProm || chiaveGiorno(g);
+  const d = new Date(S.giornoProm + "T12:00:00");
+  const lista = delGiorno(S.giornoProm).filter(a => haOre(a) && !a.esterno && !a.blocco).sort((p, q) => p.inizio < q.inizio ? -1 : 1);
+  const daFare = lista.filter(a => !a.promemoria).length;
+  const cons = a => S.clienti.find(c => c.id === a.clienteId)?.consenso;
+
+  $("main").innerHTML = `${bannerRete()}<div class="contenuto">
+    <div class="barra" style="border:0;background:none;padding:0 0 10px">
+      <button id="pPrima" aria-label="Giorno prima">‹</button>
+      <strong>${giornoLungo(d)}</strong>
+      <button id="pDopo" aria-label="Giorno dopo">›</button>
+      <span class="tenue" style="margin-left:auto">${daFare ? daFare + " da mandare" : "Tutti mandati"}</span>
+    </div>
+    ${lista.length ? lista.map(a => {
+      const ha = !!numeroWa(a.telefono);
+      return `<div class="scheda"><b>${oraDi(new Date(a.inizio))} · ${esc(a.cliente)}</b>
+        <div class="tenue">${esc((a.servizi || []).join(", "))}</div>
+        ${a.confermato ? `<div class="conferma si">✓ Ha confermato</div>` : ""}
+        ${cons(a) === false ? `<div class="tenue">Consenso ai promemoria non segnato nella scheda</div>` : ""}
+        <div class="azioni">${a.promemoria ? `<span class="tenue">Mandato</span>` : ha
+          ? `<button class="wa" data-p="${esc(a.id)}">Manda promemoria</button>`
+          : `<span class="tenue">Manca il telefono</span>`}</div></div>`;
+    }).join("") : `<div class="scheda tenue">Nessun appuntamento in questo giorno.</div>`}
+  </div>`;
+
+  $("pPrima").onclick = () => { S.giornoProm = chiaveGiorno(piuGiorni(d, -1)); disegna(); };
+  $("pDopo").onclick = () => { S.giornoProm = chiaveGiorno(piuGiorni(d, 1)); disegna(); };
+  document.querySelectorAll("[data-p]").forEach(b => b.onclick = async () => {
+    const a = S.appuntamenti.find(x => x.id === b.dataset.p);
+    apriWa(a.telefono, testoPromemoria(a));
+    await salvaServer({ ...a, promemoria: new Date().toISOString() }, true);
+  });
+}
+
+// --- Clienti -------------------------------------------------------------
+
+function disegnaClienti() {
+  const q = normalizza(S.cercaClienti.trim());
+  const lista = S.clienti.filter(c => !q || normalizza(c.nome + " " + c.telefono).includes(q))
+    .sort((a, b) => a.nome.localeCompare(b.nome, "it"));
+  const giaAperto = document.activeElement?.id === "cerca";
+  $("main").innerHTML = `${bannerRete()}<div class="contenuto">
+    <div class="azioni" style="margin:0 0 10px;flex-wrap:nowrap"><input id="cerca" placeholder="Cerca nome o telefono (${S.clienti.length} clienti)" value="${esc(S.cercaClienti)}"><button id="cNew" style="white-space:nowrap">+ Nuova</button></div>
+    ${lista.slice(0, 100).map(c => `<button class="scheda cliccabile" data-cl="${esc(c.id)}"><b>${esc(c.nome)}</b><div class="tenue">${esc(c.telefono) || "Senza telefono"}</div></button>`).join("") || `<div class="scheda tenue">Nessuna cliente trovata.</div>`}
+  </div>`;
+  $("cerca").oninput = e => { S.cercaClienti = e.target.value; disegnaClienti(); };
+  if (giaAperto) { const c = $("cerca"); c.focus(); c.setSelectionRange(c.value.length, c.value.length); }
+  $("cNew").onclick = () => modificaCliente({ id: nuovoId(), nome: "", telefono: "", email: "", note: "", consenso: false }, true);
+  document.querySelectorAll("[data-cl]").forEach(b => b.onclick = () => schedaCliente(S.clienti.find(c => c.id === b.dataset.cl)));
+}
+
+async function schedaCliente(c) {
+  S.ritorno = null;
+  apriDialogo(`<h2>${esc(c.nome)}</h2>
+    <p class="tenue" style="margin:0">${esc(c.telefono) || "Senza telefono"}${c.email ? " · " + esc(c.email) : ""}<br>Promemoria WhatsApp: ${c.consenso ? "consenso dato" : "consenso non segnato"}</p>
+    ${c.note ? `<p>${esc(c.note)}</p>` : ""}
+    <div class="azioni">
+      <button class="pieno" id="sApp">+ Appuntamento</button>
+      ${c.telefono ? `${telefonoLink(c.telefono)}<button id="sWa" class="wa">WhatsApp</button>` : ""}
+      <button id="sMod">Modifica</button>
+    </div>
+    <div id="sStorico" class="tenue" style="margin-top:16px">Sto cercando…</div>
+    <div class="azioni"><button id="sDel" class="pericolo">Cancella scheda</button><button id="sChiudi" style="margin-left:auto">Chiudi</button></div>`);
+  $("sApp").onclick = () => apriForm({ cliente: c });
+  $("sMod").onclick = () => modificaCliente(c);
+  $("sChiudi").onclick = chiudi;
+  if ($("sWa")) $("sWa").onclick = () => apriWa(c.telefono);
+  let sicuro = false;
+  $("sDel").onclick = async () => {
+    if (!sicuro) { sicuro = true; $("sDel").textContent = "Tocca ancora per cancellare"; return; }
+    try {
+      const r = await api("eliminaCliente", { id: c.id });
+      if (!r.ok) throw new Error();
+      S.clienti = S.clienti.filter(x => x.id !== c.id);
+      chiudi(); disegna(); avviso("Scheda cancellata");
+    } catch (e) { avviso("Non cancellata: controlla la connessione"); }
+  };
+  try {
+    const r = await api("storico", { clienteId: c.id });
+    const zona = $("sStorico");
+    if (!zona) return;
+    const spesa = r.appuntamenti.filter(a => a.stato === "fatto").reduce((t, a) => t + (a.prezzo || 0), 0);
+    const nonVenuta = r.appuntamenti.filter(a => a.stato === "noshow").length;
+    // Lo storico arriva dal più recente: i prossimi si leggono dal più vicino, e ci sono tutti.
+    const oggi = chiaveGiorno(new Date());
+    const prossimi = r.appuntamenti.filter(a => chiaveGiorno(new Date(a.inizio)) >= oggi).reverse();
+    const passati = r.appuntamenti.filter(a => chiaveGiorno(new Date(a.inizio)) < oggi).slice(0, 15);
+    const riga = a => {
+      const ini = new Date(a.inizio);
+      const stato = { fatto: "✓ Fatto", noshow: "Non è venuta" }[a.stato] || "";
+      return `<button class="rigaApp ${a.stato === "noshow" ? "annullata" : ""}" data-storico="${esc(a.id)}"><span><b>${ini.toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}, ${oraDi(ini)}</b>
+        <span class="cosa">${esc((a.servizi || []).join(", "))} · ${esc(a.operatrice)}</span></span>${stato ? `<span class="stato">${stato}</span>` : ""}</button>`;
+    };
+    const gruppo = (titolo, lista) => lista.length ? `<h3 style="margin:12px 0 6px;font-size:15px;color:var(--inchiostro)">${titolo}</h3>${lista.map(riga).join("")}` : "";
+    zona.innerHTML = r.appuntamenti.length
+      ? `<p style="margin:0 0 6px">${r.appuntamenti.length} appuntamenti · ${euro(spesa)} fatti${nonVenuta ? ` · ${nonVenuta} volte non è venuta` : ""}</p>`
+        + gruppo("Prossimi appuntamenti", prossimi) + gruppo("Appuntamenti passati", passati)
+      : "Ancora nessun appuntamento.";
+    // Da qui si apre il dettaglio solito; chiuso quello si torna alla scheda, con i dati riletti.
+    zona.querySelectorAll("[data-storico]").forEach(b => b.onclick = () => {
+      S.ritorno = c;
+      apriDettaglio(r.appuntamenti.find(a => a.id === b.dataset.storico));
+    });
+  } catch (e) { if ($("sStorico")) $("sStorico").textContent = "Storico non disponibile senza connessione."; }
+}
+
+function modificaCliente(c, nuova) {
+  apriDialogo(`<h2>${nuova ? "Nuova cliente" : "Modifica cliente"}</h2>
+    <label for="mNome">Nome e cognome</label><input id="mNome" value="${esc(c.nome)}">
+    <label for="mTel">Telefono</label><input id="mTel" type="tel" value="${esc(c.telefono)}">
+    <label for="mMail">Email</label><input id="mMail" type="email" value="${esc(c.email)}">
+    <label for="mNote">Note fisse</label><textarea id="mNote" rows="3">${esc(c.note)}</textarea>
+    <label class="riga"><input id="mCons" type="checkbox" ${c.consenso ? "checked" : ""}> Ha dato il consenso ai promemoria su WhatsApp</label>
+    <div id="mErr"></div>
+    <div class="azioni"><button id="mAnn">Annulla</button><button id="mSalva" class="pieno" style="margin-left:auto">Salva</button></div>`);
+  $("mAnn").onclick = chiudi;
+  $("mSalva").onclick = async () => {
+    const x = { ...c, nome: $("mNome").value.trim(), telefono: $("mTel").value.trim(), email: $("mMail").value.trim(), note: $("mNote").value.trim(), consenso: $("mCons").checked };
+    if (!x.nome) return $("mErr").innerHTML = `<div class="avviso errore">Scrivi il nome</div>`;
+    const doppia = x.telefono && S.clienti.find(o => o.id !== x.id && o.telefono.replace(/\D/g, "") === x.telefono.replace(/\D/g, ""));
+    if (doppia) return $("mErr").innerHTML = `<div class="avviso errore">Questo numero è già di ${esc(doppia.nome)}</div>`;
+    try {
+      const r = await api("salvaCliente", { cliente: x });
+      if (!r.ok) throw new Error();
+      S.clienti = S.clienti.filter(o => o.id !== x.id); S.clienti.push(x);
+      chiudi(); disegna(); avviso("Cliente salvata");
+    } catch (e) { $("mErr").innerHTML = `<div class="avviso errore">Non salvata: controlla la connessione</div>`; }
+  };
+}
+
+// --- Impostazioni --------------------------------------------------------
+
+function disegnaImpostazioni() {
+  const nomiGiorni = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+  const ordine = [1, 2, 3, 4, 5, 6, 0];
+  const I = S.impBozza = S.impBozza || JSON.parse(JSON.stringify(S.imp));
+  I.categorie = [...new Set([...(I.categorie || []), ...I.servizi.map(s => s.categoria || "Altro")])];
+  I.pause = I.pause || {};
+  const stimate = I.servizi.filter(s => s.stimata).length;
+  // Ridisegna restando allo stesso punto della pagina.
+  const ridisegna = () => { const y = $("main").scrollTop; disegnaImpostazioni(); $("main").scrollTop = y; };
+
+  const riga = (s, i) => `<div class="riga-serv ${s.stimata ? "stimata" : ""}">
+      <input class="c-nome" data-i="${i}" data-k="nome" value="${esc(s.nome)}" aria-label="Nome trattamento">
+      <label class="unita c-min"><input data-i="${i}" data-k="minuti" type="number" min="1" inputmode="numeric" value="${s.minuti}" aria-label="Durata in minuti"><span>min</span></label>
+      <label class="unita prima c-eur"><span>€</span><input data-i="${i}" data-k="prezzo" type="number" min="0" step="0.5" inputmode="decimal" value="${s.prezzo}" aria-label="Prezzo in euro"></label>
+      <select class="c-dove" data-i="${i}" data-k="usa" aria-label="Dove si fa">${Object.entries(NOMI_USI).map(([u, t]) => `<option value="${u}" ${(s.usa || usoDefault(s.categoria, s.nome)) === u ? "selected" : ""}>${t}</option>`).join("")}</select>
+      <select class="c-area" data-sposta="${i}" aria-label="Sposta in un'altra macro area">${I.categorie.map(c => `<option ${c === s.categoria ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>
+      <button class="c-via" data-via="${i}" aria-label="Togli ${esc(s.nome)}">×</button></div>`;
+
+  const aree = I.categorie.map((cat, ai) => {
+    const dentro = I.servizi.map((s, i) => [s, i]).filter(([s]) => (s.categoria || "Altro") === cat);
+    return `<div class="area">
+      <div class="areaTesta">
+        <input data-area="${ai}" value="${esc(cat)}" aria-label="Nome della macro area">
+        <span class="tenue" style="white-space:nowrap">${dentro.length}</span>
+        <button data-su="${ai}" ${ai ? "" : "disabled"} aria-label="Sposta l'area più su">↑</button>
+        <button data-giu="${ai}" ${ai < I.categorie.length - 1 ? "" : "disabled"} aria-label="Sposta l'area più giù">↓</button>
+        <button data-viaarea="${ai}" aria-label="Togli l'area ${esc(cat)}" ${dentro.length ? `disabled title="Prima sposta o togli i trattamenti"` : ""}>×</button>
+      </div>
+      ${dentro.length ? `<div class="colTesta"><span>Trattamento</span><span>Durata</span><span>Prezzo</span><span>Dove si fa</span><span>Macro area</span><span></span></div>` : ""}
+      ${dentro.map(([s, i]) => riga(s, i)).join("") || `<div class="tenue" style="margin-top:6px">Nessun trattamento in quest'area.</div>`}
+      <div class="azioni" style="margin-top:6px"><button data-aggin="${ai}">+ Trattamento in ${esc(cat)}</button></div>
+    </div>`;
+  }).join("");
+
+  $("main").innerHTML = `${bannerRete()}<div class="contenuto">
+    <div class="scheda"><b>Operatrici</b><div class="tenue">Una per riga. Ognuna ha la sua colonna in agenda.</div>
+      <textarea id="iOp" rows="5" style="margin-top:6px">${esc(I.operatrici.join("\n"))}</textarea></div>
+    <div class="scheda"><b>Spazi e macchinari</b><div class="tenue">Quanti appuntamenti possono stare in contemporanea.</div>
+      <div class="due" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+        ${[["cabina", "Cabine"], ["unghie", "Postazioni unghie"], ["laser", "Laser"], ["pressoterapia", "Pressoterapia"]].map(([k, t]) => `<div><label for="iR${k}">${t}</label><input id="iR${k}" data-ris="${k}" type="number" min="0" inputmode="numeric" value="${I.risorse[k] ?? 0}"></div>`).join("")}
+      </div></div>
+    <div class="scheda"><b>Orari di apertura</b>
+      ${ordine.map(g => `<div class="due" style="grid-template-columns:110px 1fr 1fr;align-items:center;margin-top:6px">
+        <label class="riga" style="margin:0"><input type="checkbox" data-aperto="${g}" ${I.orari[g] ? "checked" : ""}> ${nomiGiorni[g].slice(0, 3)}</label>
+        <input type="time" data-da="${g}" value="${I.orari[g]?.[0] || "09:00"}" aria-label="${nomiGiorni[g]} apertura">
+        <input type="time" data-a="${g}" value="${I.orari[g]?.[1] || "18:30"}" aria-label="${nomiGiorni[g]} chiusura"></div>`).join("")}
+    </div>
+    <div class="scheda"><b>Pausa</b><div class="tenue">In pausa non si propongono orari liberi e l'agenda la mostra tratteggiata. Si può sempre prenotare lo stesso, con conferma.</div>
+      ${ordine.filter(g => I.orari[g]).map(g => `<div class="due" style="grid-template-columns:110px 1fr 1fr;align-items:center;margin-top:6px">
+        <label class="riga" style="margin:0"><input type="checkbox" data-pausa="${g}" ${I.pause[g] ? "checked" : ""}> ${nomiGiorni[g].slice(0, 3)}</label>
+        <input type="time" data-pda="${g}" value="${I.pause[g]?.[0] || "13:00"}" aria-label="${nomiGiorni[g]} inizio pausa">
+        <input type="time" data-pa="${g}" value="${I.pause[g]?.[1] || "14:00"}" aria-label="${nomiGiorni[g]} fine pausa"></div>`).join("") || `<div class="tenue">Nessun giorno aperto.</div>`}
+      <div class="azioni"><button id="iPausaTutti">Copia la pausa del primo giorno su tutti</button></div>
+    </div>
+    <div class="scheda"><b>Messaggio di conferma</b><div class="tenue">Si manda dopo aver preso gli appuntamenti. {nome} e {appuntamenti} (uno per riga, con giorno, ora e trattamenti) si riempiono da soli.</div>
+      <textarea id="iConf" rows="4" style="margin-top:6px">${esc(I.conferma)}</textarea></div>
+    <div class="scheda"><b>Messaggio di promemoria</b><div class="tenue">{nome}, {giorno} e {ora} si riempiono da soli.</div>
+      <textarea id="iProm" rows="3" style="margin-top:6px">${esc(I.promemoria)}</textarea></div>
+    <div class="scheda"><b>Trattamenti e listino</b><div class="tenue">Divisi per macro area. Durata in minuti, prezzo in euro. Per spostare un trattamento in un'altra area cambia la tendina "Macro area".${stimate ? ` In giallo le ${stimate} durate stimate: correggile o conferma salvando.` : ""}</div>
+      ${aree}
+      <div class="azioni"><button id="iNuovaArea">+ Nuova macro area</button></div></div>
+    <div class="scheda"><b>Copia sul PC</b><div class="tenue">Ogni appuntamento nuovo, cambiato o cancellato viene scritto anche in un file di testo su questo computer, da aprire col Blocco note.</div>
+      <div id="statoCopia" style="margin-top:6px"></div>
+      <details id="guidaCopia"><summary>Come funziona</summary>
+        <ul>
+          <li><b>Per attivarla:</b> basta una volta sola, dal computer con Chrome o Edge. Premi Attiva la copia e scegli dove salvare il file, per esempio in Documenti.</li>
+          <li><b>Cosa c'è dentro:</b> all'inizio tutti gli appuntamenti dell'anno successivo, poi una riga per ogni appuntamento nuovo, modificato o cancellato. Anche quelli cancellati restano scritti.</li>
+          <li><b>Per cercare qualcosa:</b> apri il file col Blocco note e premi Ctrl+F, poi scrivi il nome della cliente.</li>
+          <li><b>Appuntamenti presi dal telefono:</b> entrano nel file quando l'agenda è aperta sul computer, se sono entro 5 settimane. Quelli più lontani entrano solo se li prendi dal computer.</li>
+          <li><b>Se Chrome chiede il permesso:</b> scegli "Consenti a ogni visita", così non lo chiede più.</li>
+          <li><b>Se compare l'avviso rosso in alto:</b> premi il tasto nell'avviso. Le righe in attesa non si perdono, vengono scritte appena il file torna raggiungibile.</li>
+          <li><b>Non modificare il file:</b> leggilo e chiudilo senza salvare, altrimenti puoi cancellare le righe aggiunte nel frattempo.</li>
+          <li><b>Se ti chiede di creare un file nuovo:</b> dagli un nome nuovo. Non scegliere il file vecchio, verrebbe svuotato.</li>
+          <li><b>Privacy:</b> nel file ci sono nomi e telefoni delle clienti, quindi il computer deve avere una password.</li>
+        </ul>
+      </details></div>
+    <div class="azioni" style="margin-bottom:20px"><button id="iSalva" class="pieno">Salva impostazioni</button></div>
+    <p class="tenue">Versione ${VERSIONE_APP}</p>
+  </div>`;
+
+  disegnaStatoCopia();
+  document.querySelectorAll("[data-k]").forEach(e => e.onchange = () => {
+    const s = I.servizi[+e.dataset.i], k = e.dataset.k;
+    s[k] = k === "nome" ? e.value.trim() : k === "usa" ? e.value : Math.max(0, +e.value || 0);
+    if (k === "minuti") delete s.stimata;
+  });
+  document.querySelectorAll("[data-sposta]").forEach(e => e.onchange = () => {
+    const s = I.servizi.splice(+e.dataset.sposta, 1)[0];
+    s.categoria = e.value;
+    I.servizi.push(s);                       // va in fondo alla sua nuova area
+    ridisegna(); avviso(`${s.nome} spostato in ${s.categoria}`);
+  });
+  document.querySelectorAll("[data-via]").forEach(b => b.onclick = () => { I.servizi.splice(+b.dataset.via, 1); ridisegna(); });
+  document.querySelectorAll("[data-area]").forEach(e => e.onchange = () => {
+    const vecchio = I.categorie[+e.dataset.area], nuovo = e.value.trim();
+    if (!nuovo || (nuovo !== vecchio && I.categorie.includes(nuovo))) { avviso(nuovo ? "C'è già un'area con questo nome" : "Il nome dell'area non può essere vuoto"); return ridisegna(); }
+    I.categorie[+e.dataset.area] = nuovo;
+    I.servizi.forEach(s => { if (s.categoria === vecchio) s.categoria = nuovo; });
+    ridisegna();
+  });
+  const scambia = (a, b) => { [I.categorie[a], I.categorie[b]] = [I.categorie[b], I.categorie[a]]; ridisegna(); };
+  document.querySelectorAll("[data-su]").forEach(b => b.onclick = () => scambia(+b.dataset.su, +b.dataset.su - 1));
+  document.querySelectorAll("[data-giu]").forEach(b => b.onclick = () => scambia(+b.dataset.giu, +b.dataset.giu + 1));
+  document.querySelectorAll("[data-viaarea]").forEach(b => b.onclick = () => { I.categorie.splice(+b.dataset.viaarea, 1); ridisegna(); });
+  document.querySelectorAll("[data-aggin]").forEach(b => b.onclick = () => {
+    const categoria = I.categorie[+b.dataset.aggin];
+    I.servizi.push({ categoria, nome: "Nuovo trattamento", minuti: 30, prezzo: 0, usa: "cabina" });
+    ridisegna();
+    const nuovo = document.querySelector(`[data-i="${I.servizi.length - 1}"][data-k="nome"]`);
+    nuovo?.focus(); nuovo?.select();
+  });
+  $("iNuovaArea").onclick = () => {
+    let nome = "Nuova area", n = 2;
+    while (I.categorie.includes(nome)) nome = `Nuova area ${n++}`;
+    I.categorie.push(nome);
+    ridisegna();
+    const e = document.querySelector(`[data-area="${I.categorie.length - 1}"]`);
+    e?.focus(); e?.select();
+  };
+  document.querySelectorAll("[data-ris]").forEach(e => e.onchange = () => I.risorse[e.dataset.ris] = Math.max(0, +e.value || 0));
+  $("iOp").onchange = e => I.operatrici = e.target.value.split("\n").map(x => x.trim()).filter(Boolean);
+  $("iProm").onchange = e => I.promemoria = e.target.value;
+  $("iConf").onchange = e => I.conferma = e.target.value;
+  const orari = g => {
+    const su = document.querySelector(`[data-aperto="${g}"]`).checked;
+    I.orari[g] = su ? [document.querySelector(`[data-da="${g}"]`).value, document.querySelector(`[data-a="${g}"]`).value] : null;
+    ridisegna();                              // la pausa compare solo nei giorni aperti
+  };
+  ordine.forEach(g => document.querySelectorAll(`[data-aperto="${g}"],[data-da="${g}"],[data-a="${g}"]`).forEach(e => e.onchange = () => orari(g)));
+  const pausa = g => {
+    const su = document.querySelector(`[data-pausa="${g}"]`).checked;
+    I.pause[g] = su ? [document.querySelector(`[data-pda="${g}"]`).value, document.querySelector(`[data-pa="${g}"]`).value] : null;
+  };
+  ordine.forEach(g => document.querySelectorAll(`[data-pausa="${g}"],[data-pda="${g}"],[data-pa="${g}"]`).forEach(e => e.onchange = () => pausa(g)));
+  $("iPausaTutti").onclick = () => {
+    const aperti = ordine.filter(g => I.orari[g]);
+    const p = I.pause[aperti[0]];
+    if (!p) return avviso(`Prima segna la pausa del ${nomiGiorni[aperti[0]] || "primo giorno"}`);
+    aperti.forEach(g => I.pause[g] = [...p]);
+    ridisegna(); avviso("Pausa copiata su tutti i giorni aperti");
+  };
+  $("iSalva").onclick = async () => {
+    if (!I.operatrici.length) return avviso("Serve almeno un'operatrice");
+    const brutta = ordine.find(g => I.pause[g] && I.orari[g] && !(I.pause[g][1] > I.pause[g][0] && I.pause[g][0] >= I.orari[g][0] && I.pause[g][1] <= I.orari[g][1]));
+    if (brutta !== undefined) return avviso(`Pausa del ${nomiGiorni[brutta]}: deve stare dentro l'orario di apertura`);
+    I.servizi = I.servizi.filter(s => s.nome);
+    const nomi = I.servizi.map(s => s.nome.toLowerCase());
+    const doppio = I.servizi.find((s, i) => nomi.indexOf(s.nome.toLowerCase()) !== i);
+    if (doppio) return avviso(`Due trattamenti si chiamano "${doppio.nome}": cambia un nome`);
+    // Si salvano in ordine di area, così anche la ricerca nel modulo li mostra raggruppati.
+    I.servizi = I.categorie.flatMap(c => I.servizi.filter(s => s.categoria === c));
+    I.servizi.forEach(s => delete s.stimata);
+    try {
+      const r = await api("salvaImpostazioni", { impostazioni: I });
+      if (!r.ok) throw new Error();
+      S.imp = normalizzaImp(JSON.parse(JSON.stringify(I))); S.impBozza = null;
+      disegna(); avviso("Impostazioni salvate");
+    } catch (e) { avviso("Non salvate: controlla la connessione"); }
+  };
+}
+
+// --- Incassi -------------------------------------------------------------
+// Sezione per Alessia: la password la controlla lo script su Google, non il telefono.
+// Appena si esce dalla sezione la password si dimentica e va riscritta.
+
+const INC = { pwd: null, impostata: null, scala: "mese", giorno: new Date(), chiave: "", dati: null, errore: "" };
+const NOMI_SCALA_INC = { giorno: "Giorno", settimana: "Settimana", mese: "Mese", anno: "Anno" };
+
+function rangeIncassi() {
+  const d = INC.giorno;
+  if (INC.scala === "giorno") { const a = new Date(d.getFullYear(), d.getMonth(), d.getDate()); return [a, piuGiorni(a, 1)]; }
+  if (INC.scala === "settimana") { const a = lunedi(d); return [a, piuGiorni(a, 7)]; }
+  if (INC.scala === "mese") return [new Date(d.getFullYear(), d.getMonth(), 1), new Date(d.getFullYear(), d.getMonth() + 1, 1)];
+  return [new Date(d.getFullYear(), 0, 1), new Date(d.getFullYear() + 1, 0, 1)];
+}
+
+function chiudiIncassi() { Object.assign(INC, { pwd: null, chiave: "", dati: null, errore: "" }); }
+
+async function caricaIncassi(ini, fin, chiave) {
+  try {
+    const r = await api("incassi", { password: INC.pwd, dal: ini.toISOString(), al: fin.toISOString() });
+    if (INC.chiave !== chiave) return;
+    if (r.ok) { INC.dati = r.voci; INC.errore = ""; }
+    else if (r.errore === "password" || r.errore === "nessuna-password") { chiudiIncassi(); INC.impostata = null; avviso("La password è cambiata: riscrivila"); }
+    else INC.errore = "Incassi non disponibili, riprova.";
+  } catch (e) { if (INC.chiave === chiave) INC.errore = "Senza connessione gli incassi non si vedono."; }
+  if (S.vista === "incassi") disegna();
+}
+
+function disegnaIncassi() {
+  if (!INC.pwd) return disegnaSblocco();
+  const [ini, fin] = rangeIncassi(), chiave = ini.toISOString() + fin.toISOString();
+  if (INC.chiave !== chiave) { INC.chiave = chiave; INC.dati = null; INC.errore = ""; caricaIncassi(ini, fin, chiave); }
+
+  const d = INC.giorno;
+  const titolo = INC.scala === "giorno" ? giornoLungo(d)
+    : INC.scala === "settimana" ? `${piuGiorni(fin, -7).getDate()} ${ini.toLocaleDateString("it-IT", { month: "short" })} – ${piuGiorni(fin, -1).getDate()} ${piuGiorni(fin, -1).toLocaleDateString("it-IT", { month: "short", year: "numeric" })}`
+    : INC.scala === "mese" ? d.toLocaleDateString("it-IT", { month: "long", year: "numeric" }) : String(d.getFullYear());
+  const barraInc = `<div class="barra" style="border:0;background:none;padding:0 0 6px">
+      <button id="incPrima" aria-label="Periodo prima">‹</button>
+      <button id="incOggi">Oggi</button>
+      <button id="incDopo" aria-label="Periodo dopo">›</button>
+      <strong>${titolo}</strong>
+      <div class="scale" role="group" aria-label="Periodo">${Object.entries(NOMI_SCALA_INC).map(([k, t]) => `<button data-incscala="${k}" class="${k === INC.scala ? "attiva" : ""}">${t}</button>`).join("")}</div>
+    </div>`;
+
+  let corpo;
+  if (INC.errore) corpo = `<div class="scheda">${esc(INC.errore)}<div class="azioni"><button id="incRiprova">Riprova</button></div></div>`;
+  else if (!INC.dati) corpo = `<div class="scheda tenue">Sto contando…</div>`;
+  else corpo = tabelleIncassi(INC.dati, ini, fin);
+
+  $("main").innerHTML = `${bannerRete()}<div class="contenuto">
+    <div class="azioni" style="margin:0 0 10px;align-items:center"><b style="font-size:18px">🔒 Incassi</b>
+      <button id="incPwd" style="margin-left:auto">Cambia password</button><button id="incChiudi">Chiudi a chiave</button></div>
+    ${barraInc}${corpo}
+    <p class="tenue">Contano tutti gli appuntamenti del periodo, tranne le clienti che non sono venute e gli orari bloccati. Le ore sono quelle passate con le clienti (due trattamenti insieme contano una volta sola), non le ore di presenza in istituto.</p>
+  </div>`;
+
+  const passoInc = dir => {
+    const x = INC.giorno;
+    INC.giorno = INC.scala === "giorno" ? piuGiorni(x, dir) : INC.scala === "settimana" ? piuGiorni(x, 7 * dir)
+      : INC.scala === "mese" ? new Date(x.getFullYear(), x.getMonth() + dir, 1, 12) : new Date(x.getFullYear() + dir, x.getMonth(), 1, 12);
+    disegna();
+  };
+  $("incPrima").onclick = () => passoInc(-1);
+  $("incDopo").onclick = () => passoInc(1);
+  $("incOggi").onclick = () => { INC.giorno = new Date(); disegna(); };
+  document.querySelectorAll("[data-incscala]").forEach(b => b.onclick = () => { INC.scala = b.dataset.incscala; disegna(); });
+  document.querySelectorAll("[data-incvai]").forEach(b => b.onclick = () => {
+    const [scala, k] = b.dataset.incvai.split("|");
+    INC.scala = scala; INC.giorno = new Date(k + "T12:00:00"); disegna();
+  });
+  if ($("incRiprova")) $("incRiprova").onclick = () => { INC.chiave = ""; disegna(); };
+  $("incChiudi").onclick = () => { chiudiIncassi(); disegna(); };
+  $("incPwd").onclick = cambiaPasswordIncassi;
+}
+
+// voci: [operatrice, prezzo, inizio, fine, fatto]
+function tabelleIncassi(voci, ini, fin) {
+  const adesso = Date.now();
+  const nomi = [...new Set([...S.imp.operatrici, ...voci.map(v => v[0])])].filter(n => n && n !== TUTTE);
+  // Minuti con clienti: gli intervalli sovrapposti della stessa operatrice si contano una volta.
+  const minutiDi = lista => {
+    const iv = lista.map(v => [v[2], v[3]]).sort((a, b) => a[0] - b[0]);
+    let tot = 0, fine = -Infinity;
+    iv.forEach(([a, b]) => { if (b <= fine) return; tot += b - Math.max(a, fine); fine = b; });
+    return tot / 60000;
+  };
+  const per = nomi.map(n => {
+    const sue = voci.filter(v => v[0] === n);
+    return { nome: n, n: sue.length, euro: sue.reduce((t, v) => t + v[1], 0), minuti: minutiDi(sue) };
+  }).filter(o => o.n || S.imp.operatrici.includes(o.nome));
+  const tot = { n: voci.length, euro: voci.reduce((t, v) => t + v[1], 0), minuti: per.reduce((t, o) => t + o.minuti, 0) };
+  const fatti = voci.filter(v => v[3] <= adesso).reduce((t, v) => t + v[1], 0);
+  const futuri = tot.euro - fatti;
+  const allOra = o => o.minuti ? euro(o.euro / (o.minuti / 60)) : "—";
+  const ore = m => m ? durataTesto(Math.round(m)) : "—";
+  const quota = o => tot.euro ? Math.round(o.euro / tot.euro * 100) : 0;
+
+  const tessere = `<div class="tessere">
+    <div class="tessera"><small>Fatturato</small><b>${euro(tot.euro)}</b><span>${futuri > 0 ? `${euro(fatti)} già passati · ${euro(futuri)} ancora da fare` : "tutto già passato"}</span></div>
+    <div class="tessera"><small>Appuntamenti</small><b>${tot.n}</b><span>${tot.n ? `${euro(tot.euro / tot.n)} in media` : "&nbsp;"}</span></div>
+    <div class="tessera"><small>Ore con clienti</small><b>${ore(tot.minuti)}</b><span>somma delle operatrici</span></div>
+    <div class="tessera"><small>Fatturato all'ora</small><b>${allOra(tot)}</b><span>&nbsp;</span></div>
+  </div>`;
+
+  const tabOp = `<h3 style="font-size:15px;margin:14px 0 4px">Per operatrice</h3><div class="tabellaScorre"><table class="inc">
+    <thead><tr><th>Operatrice</th><th>App.</th><th>Ore</th><th>Fatturato</th><th>€ all'ora</th><th class="nascondiTel">Quota</th></tr></thead>
+    <tbody>${per.map(o => `<tr title="${esc(o.nome)}: ${euro(o.euro)}, ${quota(o)}% del totale">
+      <td><i class="pallino" style="${varColore(o.nome)}"></i>${esc(o.nome)}<span class="quota" style="width:${quota(o)}%;${varColore(o.nome)}"></span></td>
+      <td>${o.n}</td><td>${ore(o.minuti)}</td><td>${euro(o.euro)}</td><td>${allOra(o)}</td><td class="nascondiTel">${quota(o)}%</td></tr>`).join("")}</tbody>
+    <tfoot><tr><td>Totale</td><td>${tot.n}</td><td>${ore(tot.minuti)}</td><td>${euro(tot.euro)}</td><td>${allOra(tot)}</td><td class="nascondiTel">100%</td></tr></tfoot>
+  </table></div>`;
+
+  // Dettaglio nel tempo: anno → mesi, mese e settimana → giorni. Un tocco porta a quel periodo.
+  if (INC.scala === "giorno") return tessere + tabOp;
+  const pezzi = [];
+  if (INC.scala === "anno") {
+    for (let m = 0; m < 12; m++) {
+      const a = new Date(ini.getFullYear(), m, 1).getTime(), b = new Date(ini.getFullYear(), m + 1, 1).getTime();
+      const q = voci.filter(v => v[2] >= a && v[2] < b);
+      pezzi.push({ nome: new Date(a).toLocaleDateString("it-IT", { month: "long" }), vai: `mese|${chiaveGiorno(new Date(a))}`, n: q.length, euro: q.reduce((t, v) => t + v[1], 0) });
+    }
+  } else {
+    for (let g = new Date(ini); g < fin; g = piuGiorni(g, 1)) {
+      const a = g.getTime(), b = piuGiorni(g, 1).getTime();
+      const q = voci.filter(v => v[2] >= a && v[2] < b);
+      if (!q.length && INC.scala === "mese") continue;
+      pezzi.push({ nome: g.toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short" }), vai: `giorno|${chiaveGiorno(g)}`, n: q.length, euro: q.reduce((t, v) => t + v[1], 0) });
+    }
+  }
+  const max = Math.max(1, ...pezzi.map(p => p.euro));
+  const tabTempo = `<h3 style="font-size:15px;margin:14px 0 4px">${INC.scala === "anno" ? "Mese per mese" : "Giorno per giorno"}</h3><div class="tabellaScorre"><table class="inc">
+    <thead><tr><th>${INC.scala === "anno" ? "Mese" : "Giorno"}</th><th>App.</th><th>Fatturato</th></tr></thead>
+    <tbody>${pezzi.map(p => `<tr title="${esc(p.nome)}: ${euro(p.euro)}"><td><button class="rigaApp" style="margin:0;min-height:36px;padding:2px 0;border:0;background:none;display:block;text-transform:capitalize" data-incvai="${p.vai}">${esc(p.nome)}<span class="quota" style="width:${p.euro / max * 100}%"></span></button></td>
+      <td>${p.n}</td><td>${euro(p.euro)}</td></tr>`).join("") || `<tr><td colspan="3" class="tenue">Nessun appuntamento nel periodo.</td></tr>`}</tbody>
+  </table></div>`;
+  return tessere + tabOp + tabTempo;
+}
+
+async function disegnaSblocco() {
+  if (INC.impostata === null) {
+    $("main").innerHTML = `<div class="contenuto"><div class="scheda tenue">Un momento…</div></div>`;
+    try {
+      const r = await api("statoPassword");
+      if (!r.ok) throw new Error();
+      INC.impostata = r.impostata;
+    } catch (e) {
+      $("main").innerHTML = `<div class="contenuto"><div class="scheda">Senza connessione gli incassi non si vedono.<div class="azioni"><button id="incRiprova">Riprova</button></div></div></div>`;
+      $("incRiprova").onclick = () => disegna();
+      return;
+    }
+    if (S.vista === "incassi") disegna();
+    return;
+  }
+  const nuova = !INC.impostata;
+  $("main").innerHTML = `<div class="contenuto"><form class="scheda" id="incForm" style="max-width:420px;margin:20px auto">
+    <h2 style="margin:0 0 6px;font-size:19px">🔒 Incassi</h2>
+    <p class="tenue" style="margin:0">${nuova ? "Prima volta: crea la password che userà solo Alessia. Almeno 4 caratteri. Segnala in un posto sicuro: se si perde, può azzerarla solo Gabriele." : "Sezione riservata ad Alessia."}</p>
+    <input type="text" name="utente" value="Alessia" autocomplete="username" hidden>
+    <label for="incP1">${nuova ? "Nuova password" : "Password"}</label>
+    <input id="incP1" type="password" autocomplete="${nuova ? "new-password" : "current-password"}" required>
+    ${nuova ? `<label for="incP2">Riscrivila</label><input id="incP2" type="password" autocomplete="new-password" required>` : ""}
+    <div id="incErr"></div>
+    <div class="azioni"><button class="pieno" type="submit" style="margin-left:auto">${nuova ? "Crea la password" : "Entra"}</button></div>
+  </form></div>`;
+  const errore = t => $("incErr").innerHTML = `<div class="avviso errore">${esc(t)}</div>`;
+  if (!matchMedia("(pointer:coarse)").matches) $("incP1").focus();
+  $("incForm").onsubmit = async e => {
+    e.preventDefault();
+    const p = $("incP1").value;
+    try {
+      if (nuova) {
+        if (p.length < 4) return errore("Almeno 4 caratteri");
+        if (p !== $("incP2").value) return errore("Le due password sono diverse");
+        const r = await api("impostaPassword", { nuova: p });
+        if (!r.ok) { INC.impostata = null; return errore("Qualcuno l'ha già creata: ricarica la pagina"); }
+        INC.impostata = true;
+      } else {
+        const ora = new Date().toISOString();
+        const r = await api("incassi", { password: p, dal: ora, al: ora });
+        if (!r.ok) return errore(r.errore === "password" ? "Password sbagliata" : "Non riesco a controllarla, riprova");
+      }
+      INC.pwd = p; INC.chiave = "";
+      disegna();
+    } catch (err) { errore("Senza connessione non si può entrare"); }
+  };
+}
+
+function cambiaPasswordIncassi() {
+  apriDialogo(`<h2>Cambia password degli incassi</h2>
+    <form id="cpForm"><input type="text" value="Alessia" autocomplete="username" hidden>
+    <label for="cpN1">Nuova password</label><input id="cpN1" type="password" autocomplete="new-password" required>
+    <label for="cpN2">Riscrivila</label><input id="cpN2" type="password" autocomplete="new-password" required>
+    <div id="cpErr"></div>
+    <div class="azioni"><button type="button" id="cpAnn">Annulla</button><button type="submit" class="pieno" style="margin-left:auto">Cambia</button></div></form>`);
+  $("cpAnn").onclick = chiudi;
+  const errore = t => $("cpErr").innerHTML = `<div class="avviso errore">${esc(t)}</div>`;
+  $("cpForm").onsubmit = async e => {
+    e.preventDefault();
+    const n = $("cpN1").value;
+    if (n.length < 4) return errore("Almeno 4 caratteri");
+    if (n !== $("cpN2").value) return errore("Le due password sono diverse");
+    try {
+      const r = await api("impostaPassword", { password: INC.pwd, nuova: n });
+      if (!r.ok) return errore("Non cambiata: riprova");
+      INC.pwd = n; chiudi(); avviso("Password cambiata");
+    } catch (err) { errore("Senza connessione non si può cambiare"); }
+  };
+}
+
+// --- Scheda al passaggio del mouse --------------------------------------
+
+const nascondiFumetto = () => { $("fumetto").style.display = "none"; };
+
+function mostraFumetto(b) {
+  const a = S.appuntamenti.find(x => x.id === b.dataset.app && x.inizio === b.dataset.ini);
+  if (!a) return;
+  const f = $("fumetto"), ini = new Date(a.inizio), fin = new Date(a.fine);
+  const quando = `${ini.toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short" })}, ${oraDi(ini)}–${oraDi(fin)} · ${durataTesto((fin - ini) / 60000)}`;
+  const stato = { fatto: "✓ Fatto", noshow: "Non è venuta" }[a.stato] || "";
+  f.style.cssText = `--c:${a.esterno ? "#7c8796" : coloreDi(a.operatrice)[0]}`;
+  f.innerHTML = a.blocco
+    ? `<b>🔒 ${esc(a.cliente)}</b><div class="riga">${quando}</div><div class="riga">${a.operatrice === TUTTE ? "Tutte le operatrici" : esc(a.operatrice)}</div>`
+    : a.esterno
+    ? `<b>${esc(a.titolo)}</b><div class="riga">${quando}</div><div class="riga">Scritto su Google Calendar</div>`
+    : `<b>${esc(a.cliente)}</b><div class="riga">${quando}</div>
+       <div class="tratt">${esc((a.servizi || []).join(", "))}</div>
+       <div class="fondoF"><span><i class="pallino"></i>${esc(a.operatrice)}</span><span>${euro(a.prezzo || 0)}</span></div>
+       ${a.telefono ? `<div class="riga">${esc(a.telefono)}</div>` : ""}
+       ${stato ? `<div class="riga">${stato}</div>` : ""}
+       ${a.note ? `<div class="nota">${esc(a.note)}</div>` : ""}`;
+  // Accanto al blocco, dal lato dove c'è spazio; mai fuori dallo schermo.
+  f.style.display = "block";
+  const r = b.getBoundingClientRect(), l = f.offsetWidth, h = f.offsetHeight, m = 8;
+  const x = r.right + m + l <= innerWidth ? r.right + m : Math.max(m, r.left - m - l);
+  f.style.left = x + "px";
+  f.style.top = Math.max(m, Math.min(r.top, innerHeight - h - m)) + "px";
+}
+
+$("main").addEventListener("pointerover", e => {
+  const b = e.pointerType === "mouse" && e.target.closest(".app");
+  if (b) mostraFumetto(b);
+});
+$("main").addEventListener("pointerout", e => { if (e.target.closest(".app")) nascondiFumetto(); });
+$("main").addEventListener("focusin", e => { const b = e.target.closest?.(".app"); if (b && b.matches(":focus-visible")) mostraFumetto(b); });
+$("main").addEventListener("focusout", nascondiFumetto);
+$("main").addEventListener("scroll", nascondiFumetto, true);
+$("main").addEventListener("click", nascondiFumetto);
+
+// --- Avvio ---------------------------------------------------------------
+
+document.querySelectorAll("#menu button").forEach(b => b.onclick = () => {
+  if (b.dataset.vista !== "incassi") chiudiIncassi();      // uscendo dagli incassi la password si dimentica
+  S.vista = b.dataset.vista; S.impBozza = null; disegna();
+});
+$("btnNuovo").onclick = () => S.cfg ? apriForm() : disegna();
+// Ricarica tutta la pagina: così arrivano sia gli appuntamenti nuovi sia l'ultima versione dell'app.
+$("btnAggiorna").onclick = async () => {
+  if (!navigator.onLine) return avviso("Connessione assente: non si può aggiornare");
+  if (S.impBozza && JSON.stringify(S.impBozza) !== JSON.stringify(S.imp)) return avviso("Prima salva le impostazioni");
+  $("btnAggiorna").classList.add("gira");
+  await Copia.giro;
+  const reg = await navigator.serviceWorker?.getRegistration().catch(() => null);
+  await reg?.update().catch(() => {});
+  location.reload();
+};
+$("dlg").addEventListener("click", e => { if (e.target === $("dlg")) chiudi(); });
+$("dlg").addEventListener("close", () => {
+  document.body.classList.remove("modulo");
+  if (S.ritorno) schedaCliente(S.ritorno);
+});
+
+// Swipe a destra o sinistra nell'agenda: periodo precedente o successivo.
+{
+  let x0 = null, y0 = 0;
+  $("main").addEventListener("touchstart", e => {
+    x0 = S.vista === "agenda" && e.touches.length === 1 ? e.touches[0].clientX : null;
+    y0 = e.touches[0]?.clientY ?? 0;
+  }, { passive: true });
+  $("main").addEventListener("touchend", e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 50) vaiA(passo(dx < 0 ? 1 : -1));
+  }, { passive: true });
+}
+
+leggiLinkCollega();
+caricaCopia();
+disegna();
+scriviCopia();
+carica();
+
+// Tiene allineati telefono e PC: rilegge quando si torna sull'app e ogni minuto,
+// ma non mentre si sta compilando un modulo o le impostazioni.
+const ricarica = () => { if (document.visibilityState === "visible" && !$("dlg").open && S.vista !== "impostazioni") carica(); };
+document.addEventListener("visibilitychange", ricarica);
+setInterval(ricarica, 60000);
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
