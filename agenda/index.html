@@ -288,7 +288,7 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 18;
+const VERSIONE_APP = 19;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
 // Gli stessi colori che le operatrici hanno su Google Calendar (detti da Gabriele il 4 nov 2026,
@@ -1150,9 +1150,15 @@ function statoConferma(a) {
 function apriDettaglio(a) {
   const ini = new Date(a.inizio), fin = new Date(a.fine);
   const quando = `${giornoLungo(ini)}, ${oraDi(ini)}–${oraDi(fin)}`;
-  if (a.blocco) return apriBlocco({ modifica: a });
+  // Scritti a mano su Calendar (anche se riconosciuti come extra o assenza): si guardano, non si modificano da qui,
+  // altrimenti il salvataggio riscriverebbe l'evento di Calendar.
+  if (a.blocco && !a.esterno) return apriBlocco({ modifica: a });
   if (a.esterno) {
+    const tipo = a.privato ? `Extra di ${esc(a.operatrice)} (Banana su Calendar): in questa fascia risulta occupata.`
+      : a.assenza ? `Assenza di ${esc(a.operatrice)}: in questa fascia non le vengono proposti appuntamenti.`
+      : a.operatrice ? `Appuntamento di ${esc(a.operatrice)} (dal colore su Calendar).` : "";
     return apriDialogo(`<h2>${esc(a.titolo)}</h2><p class="tenue">${quando}</p>
+      ${tipo ? `<p>${tipo}</p>` : ""}
       <p>È stato scritto direttamente su Google Calendar: si modifica da lì.</p>
       <div class="azioni"><button id="x">Chiudi</button></div>`), $("x").onclick = chiudi;
   }
@@ -2118,7 +2124,9 @@ function mostraFumetto(b) {
   const quando = `${ini.toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short" })}, ${oraDi(ini)}–${oraDi(fin)} · ${durataTesto((fin - ini) / 60000)}`;
   const stato = { fatto: "✓ Fatto", noshow: "Non è venuta" }[a.stato] || "";
   f.style.cssText = `--c:${tintaDi(a)}`;
-  f.innerHTML = a.blocco
+  f.innerHTML = a.esterno && a.blocco
+    ? `<b>${esc(a.titolo)}</b><div class="riga">${quando}</div><div class="riga">${a.privato ? "Extra" : "Assenza"} · ${esc(a.operatrice)}</div>`
+    : a.blocco
     ? `<b>🔒 ${esc(a.cliente)}</b><div class="riga">${quando}</div><div class="riga">${a.operatrice === TUTTE ? "Tutte le operatrici" : esc(a.operatrice)}</div>`
     : a.esterno
     ? `<b>${esc(a.titolo)}</b><div class="riga">${quando}</div><div class="riga">Scritto su Google Calendar</div>`
