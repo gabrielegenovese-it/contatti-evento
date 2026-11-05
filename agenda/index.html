@@ -71,6 +71,7 @@ main{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column}
 .sett .app.gc.blocco{background:repeating-linear-gradient(135deg,var(--t) 0 6px,color-mix(in srgb,var(--t) 55%,#fff) 6px 12px)}
 .sett .app.gc.pertutte{z-index:0;background:repeating-linear-gradient(135deg,#e6e2e8 0 6px,#f4f1f5 6px 12px);box-shadow:none;color:var(--grigio)}
 .sett .app.gc.pertutte span{color:var(--grigio)}
+.sett .app.gc.privato,.sett .app.gc.privato span{color:#3d2c00}
 .sett .app.gc.fatto{opacity:.55}
 .sett .app.gc.noshow{opacity:.5}
 .zoom{display:flex;gap:2px;background:var(--viola2);border-radius:10px;padding:2px}
@@ -287,14 +288,14 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 17;
+const VERSIONE_APP = 18;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
 // Gli stessi colori che le operatrici hanno su Google Calendar (detti da Gabriele il 4 nov 2026,
 // tinte misurate sul suo Calendar): così agenda e Calendar non si confondono.
 const COLORI_CALENDAR = { alessia: "#039be5", marta: "#7986cb", veronica: "#3f51b5", denisa: "#009688" };
 // Colore di un evento scritto a mano su Calendar (getColor = numero del colore). Tinte come le mostra Calendar oggi.
-const TINTE_EVENTO = { "1": "#7986cb", "2": "#009688", "3": "#8e24aa", "4": "#e67c73", "5": "#f09300", "6": "#ef6c00", "7": "#039be5", "8": "#616161", "9": "#3f51b5", "10": "#0b8043", "11": "#d50000" };
+const TINTE_EVENTO = { "1": "#7986cb", "2": "#009688", "3": "#8e24aa", "4": "#e67c73", "5": "#f6bf26", "6": "#f4511e", "7": "#039be5", "8": "#616161", "9": "#3f51b5", "10": "#0b8043", "11": "#d50000" };
 const chiaro = hex => { const n = parseInt(hex.slice(1), 16), m = c => Math.round(c + (255 - c) * .84); return `rgb(${m(n >> 16)},${m(n >> 8 & 255)},${m(n & 255)})`; };
 const ORA_INIZIO = 8, ORA_FINE = 21, PX_BASE = 1.5, GIORNI_CARICATI = 42;
 // Zoom di giorno e settimana: allunga le ore (e in settimana allarga i giorni). Si ricorda per dispositivo.
@@ -322,6 +323,8 @@ const NOMI_RISORSE = { cabina: "Tutte le cabine sono occupate", unghie: "Tutte l
 const usoDi = servizi => [...new Set(servizi.flatMap(s => USI[s.usa || usoDefault(s.categoria || "", s.nome)] || []))];
 const TUTTE = "Tutte";
 const soloApp = a => !a.blocco;
+// Ha un'operatrice: scritto dall'app, o scritto a mano e riconosciuto dallo script (colore, "No Marta", privato).
+const diChi = a => !a.esterno || !!a.operatrice;
 const operatriciViste = () => [...new Set([...S.imp.operatrici, ...S.appuntamenti.filter(a => !a.esterno && a.operatrice && a.operatrice !== TUTTE).map(a => a.operatrice)])];
 const nomeChiave = n => normalizza(String(n || "").trim().split(/\s+/)[0] || "");
 const coloreDi = n => {
@@ -332,7 +335,9 @@ const coloreDi = n => {
   return COLORI[altre.indexOf(n) % COLORI.length] || ["#7c8796", "#eef0f3"];
 };
 // Colore di un blocco: quello dell'operatrice; se è scritto a mano senza operatrice, il suo colore di Calendar.
-const tintaDi = a => a.operatrice && a.operatrice !== TUTTE ? coloreDi(a.operatrice)[0]
+// Privati di Alessia (Banana su Calendar): restano del loro colore, così si vede che non sono clienti.
+const tintaDi = a => a.privato && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore]
+  : a.operatrice && a.operatrice !== TUTTE ? coloreDi(a.operatrice)[0]
   : a.esterno && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore] : "#7c8796";
 const varColore = n => { const [c, c2] = coloreDi(n); return `--c:${c};--c2:${c2}`; };
 const NOMI_SCALA = { giorno: "Giorno", settimana: "Settimana", mese: "Mese", anno: "Anno" };
@@ -698,8 +703,9 @@ function fuoriOrario(chiave, ini, fin) {
 function libereAlle(chiave, ini, fin, ignoraId) {
   const voci = delGiorno(chiave).filter(a => haOre(a) && a.id !== ignoraId && a.stato !== "noshow"
     && new Date(a.inizio).getTime() < fin && new Date(a.fine).getTime() > ini);
-  const esterni = voci.filter(a => a.esterno).length;
-  const libere = S.imp.operatrici.filter(n => !voci.some(a => !a.esterno && (a.operatrice === n || a.operatrice === TUTTE)));
+  // scritti a mano senza operatrice riconosciuta: ognuno occupa "una qualsiasi"
+  const esterni = voci.filter(a => a.esterno && !a.operatrice).length;
+  const libere = S.imp.operatrici.filter(n => !voci.some(a => diChi(a) && (a.operatrice === n || a.operatrice === TUTTE)));
   return libere.length > esterni ? libere : [];
 }
 
@@ -936,7 +942,7 @@ function disegnaSettimana() {
     const stile = pertutte
       ? `top:${yDi(ini)}px;height:${alto}px;left:0;width:100%`
       : `top:${yDi(ini)}px;height:${alto}px;left:calc(${c / n * 100}% + 1px);width:calc(${100 / n}% - 2px);--t:${tintaDi(a)}`;
-    return `<button class="app gc ${alto < 30 ? "basso" : ""} ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${pertutte ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${orario} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">${dentro}</button>`;
+    return `<button class="app gc ${alto < 30 ? "basso" : ""} ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.privato ? "privato" : ""} ${pertutte ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${orario} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">${dentro}</button>`;
   };
 
   const colonne = giorni.map(d => {
@@ -1033,10 +1039,10 @@ function disegnaGiorno() {
 
   const delDi = delGiorno(chiave);
   const conOre = delDi.filter(haOre);
-  const esterni = conOre.filter(a => a.esterno);
-  const colonne = S.imp.operatrici.map(n => ({ nome: n, voci: conOre.filter(a => !a.esterno && (a.operatrice === n || a.operatrice === TUTTE)) }));
-  [...new Set(conOre.filter(a => !a.esterno && a.operatrice !== TUTTE && !S.imp.operatrici.includes(a.operatrice)).map(a => a.operatrice))]
-    .forEach(n => colonne.push({ nome: n, voci: conOre.filter(a => !a.esterno && a.operatrice === n) }));
+  const esterni = conOre.filter(a => !diChi(a));
+  const colonne = S.imp.operatrici.map(n => ({ nome: n, voci: conOre.filter(a => diChi(a) && (a.operatrice === n || a.operatrice === TUTTE)) }));
+  [...new Set(conOre.filter(a => diChi(a) && a.operatrice !== TUTTE && !S.imp.operatrici.includes(a.operatrice)).map(a => a.operatrice))]
+    .forEach(n => colonne.push({ nome: n, voci: conOre.filter(a => diChi(a) && a.operatrice === n) }));
   if (esterni.length) colonne.push({ nome: "Da Google Calendar", voci: esterni, esterna: true });
 
   if (!S.opViste.includes(S.filtro)) S.filtro = "";
@@ -1054,11 +1060,12 @@ function disegnaGiorno() {
 
   const blocco = (a, sx, tot) => {
     const ini = new Date(a.inizio), fin = new Date(a.fine);
-    const stile = `top:${y(ini)}px;height:${Math.max((fin - ini) / 60000 * PX_MIN - 2, 22)}px;left:calc(3px + ${sx / tot * 100}%);right:auto;width:calc(${100 / tot}% - 6px)`;
+    const tinta = a.esterno && diChi(a) ? tintaDi(a) : "";   // scritto a mano ma riconosciuto: nel colore giusto
+    const stile = `top:${y(ini)}px;height:${Math.max((fin - ini) / 60000 * PX_MIN - 2, 22)}px;left:calc(3px + ${sx / tot * 100}%);right:auto;width:calc(${100 / tot}% - 6px)${tinta ? `;--c:${tinta};--c2:${chiaro(tinta)}` : ""}`;
     const nome = a.esterno ? a.titolo : a.blocco ? `🔒 ${a.cliente}` : a.cliente;
     const segno = a.stato === "fatto" ? "✓ " : "";
     const sotto = a.esterno ? "" : (a.servizi || []).join(", ");
-    return `<button class="app ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.operatrice === TUTTE ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}">
+    return `<button class="app ${a.esterno && !diChi(a) ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.operatrice === TUTTE ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}">
       <b>${segno}${oraDi(ini)} <u class="lungo">${esc(nome)}</u><u class="corto">${esc(a.esterno || a.blocco ? nome : nomeCorto(nome))}</u>${(a.usa || []).includes("laser") ? `<i class="etichetta" style="font-style:normal">LASER</i>` : ""}</b><span>${esc(sotto)}</span></button>`;
   };
 
