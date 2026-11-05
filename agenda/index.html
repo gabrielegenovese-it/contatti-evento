@@ -59,9 +59,22 @@ main{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column}
 .scale button{border:0;background:none;min-height:36px;padding:4px 11px;font-size:14px;color:var(--viola)}
 .scale button.attiva{background:var(--viola);color:#fff;font-weight:600}
 .filtri{display:flex;background:#fff;border-bottom:1px solid var(--linea)}
-.sett .app{padding:1px 2px;font-size:11px;border-left-width:2px;min-height:14px}
-.sett .app b{white-space:nowrap}
-.sett.solo1 .app{font-size:12px;padding:1px 4px}
+/* settimana come Google Calendar: blocchi pieni del colore dell'operatrice, alti quanto durano */
+.sett .colonna,.settT .tab{min-width:var(--colMin,0)}
+/* allargata con lo zoom: le ore e le testate devono restare attaccate anche scorrendo di lato */
+.sett,.settT{width:var(--largo,100%);min-width:100%}
+.settT .angolo{position:sticky;left:0;background:#fff;z-index:5}
+.sett .app.gc{display:flex;flex-direction:column;justify-content:flex-start;border:0;border-radius:5px;background:var(--t);color:#fff;padding:2px 5px;font-size:12px;line-height:1.25;min-height:0;box-shadow:0 0 0 1px #fff;z-index:1}
+.sett .app.gc b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sett .app.gc span{color:#fff;opacity:.92;font-size:11px}
+.sett .app.gc.basso{padding:0 4px;font-size:11px;line-height:1.1}
+.sett .app.gc.blocco{background:repeating-linear-gradient(135deg,var(--t) 0 6px,color-mix(in srgb,var(--t) 55%,#fff) 6px 12px)}
+.sett .app.gc.pertutte{z-index:0;background:repeating-linear-gradient(135deg,#e6e2e8 0 6px,#f4f1f5 6px 12px);box-shadow:none;color:var(--grigio)}
+.sett .app.gc.pertutte span{color:var(--grigio)}
+.sett .app.gc.fatto{opacity:.55}
+.sett .app.gc.noshow{opacity:.5}
+.zoom{display:flex;gap:2px;background:var(--viola2);border-radius:10px;padding:2px}
+.zoom button{border:0;background:none;min-height:40px;min-width:40px;padding:0 10px;font-size:20px;line-height:1;color:var(--viola)}
 .tab.oggi{color:var(--viola);text-decoration:underline}
 .mese{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(92px,1fr);min-height:100%}
 .testaMese{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:#fff;border-bottom:1px solid var(--linea);font-size:13px;text-align:center;color:var(--grigio);padding:4px 0;text-transform:capitalize}
@@ -124,7 +137,7 @@ dialog::backdrop{background:rgba(30,20,45,.45)}
 .riga-serv button{min-height:36px;padding:0}
 .stimata [data-k="minuti"]{border-color:#d4a72c;background:#fff6dd}
 @media (max-width:620px){nav{order:3;width:100%}nav button{flex:1;padding:8px 2px}
-:root{--gut:36px}.scale{margin-left:0;width:100%}.scale button{flex:1;padding:4px 2px}.mese{grid-auto-rows:minmax(64px,1fr)}.cella{padding:3px}.cella small{font-size:11px}.sett:not(.solo1) .app b,.sett:not(.solo1) .app span{display:none}
+:root{--gut:36px}.scale{margin-left:0;width:100%}.scale button{flex:1;padding:4px 2px}.mese{grid-auto-rows:minmax(64px,1fr)}.cella{padding:3px}.cella small{font-size:11px}
 .contaGiorno{display:none}.ora{font-size:11px;right:3px}.tab{font-size:13px}
 .compatta .app{left:1px!important;padding:1px 3px;font-size:12px;border-left-width:3px}.compatta .app b{white-space:normal}.compatta .app span{display:none}.compatta .app .lungo{display:none}.compatta .app .corto{display:inline}}
 @media (max-width:620px){
@@ -143,6 +156,7 @@ body.modulo #btnNuovo{display:none}
 .barra #ieri{order:1}.barra strong{order:2;flex:1;min-width:0;text-align:center;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.barra #domani{order:3}.barra #oggi{order:4;padding:6px 10px}
 .barra>button{min-height:44px;min-width:44px;padding:6px}
 .scale{order:5}.scale button{min-height:40px}
+.barra .zoom{order:4}.zoom button{min-height:44px;min-width:44px}
 .settimana{padding:5px 8px}.settimana button{min-height:44px;min-width:52px;font-size:12px}
 .tab{min-height:44px}
 .scorre{padding-bottom:84px}
@@ -273,10 +287,20 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 16;
+const VERSIONE_APP = 17;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
-const ORA_INIZIO = 8, ORA_FINE = 21, PX_MIN = 1.5, GIORNI_CARICATI = 42;
+// Gli stessi colori che le operatrici hanno su Google Calendar (detti da Gabriele il 4 nov 2026,
+// tinte misurate sul suo Calendar): così agenda e Calendar non si confondono.
+const COLORI_CALENDAR = { alessia: "#039be5", marta: "#7986cb", veronica: "#3f51b5", denisa: "#009688" };
+// Colore di un evento scritto a mano su Calendar (getColor = numero del colore). Tinte come le mostra Calendar oggi.
+const TINTE_EVENTO = { "1": "#7986cb", "2": "#009688", "3": "#8e24aa", "4": "#e67c73", "5": "#f09300", "6": "#ef6c00", "7": "#039be5", "8": "#616161", "9": "#3f51b5", "10": "#0b8043", "11": "#d50000" };
+const chiaro = hex => { const n = parseInt(hex.slice(1), 16), m = c => Math.round(c + (255 - c) * .84); return `rgb(${m(n >> 16)},${m(n >> 8 & 255)},${m(n & 255)})`; };
+const ORA_INIZIO = 8, ORA_FINE = 21, PX_BASE = 1.5, GIORNI_CARICATI = 42;
+// Zoom di giorno e settimana: allunga le ore (e in settimana allarga i giorni). Si ricorda per dispositivo.
+const ZOOM_MIN = 0.6, ZOOM_MAX = 4;
+let ZOOM = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, +localStorage.getItem("agenda-zoom") || 1));
+let PX_MIN = PX_BASE * ZOOM;
 const $ = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const euro = n => "€ " + (Math.round(n * 100) / 100).toLocaleString("it-IT");
@@ -299,7 +323,17 @@ const usoDi = servizi => [...new Set(servizi.flatMap(s => USI[s.usa || usoDefaul
 const TUTTE = "Tutte";
 const soloApp = a => !a.blocco;
 const operatriciViste = () => [...new Set([...S.imp.operatrici, ...S.appuntamenti.filter(a => !a.esterno && a.operatrice && a.operatrice !== TUTTE).map(a => a.operatrice)])];
-const coloreDi = n => COLORI[(S.opViste || S.imp.operatrici).indexOf(n) % COLORI.length] || ["#7c8796", "#eef0f3"];
+const nomeChiave = n => normalizza(String(n || "").trim().split(/\s+/)[0] || "");
+const coloreDi = n => {
+  const cal = COLORI_CALENDAR[nomeChiave(n)];
+  if (cal) return [cal, chiaro(cal)];
+  // chi non è nella tabella prende una tinta libera dalle altre
+  const altre = (S.opViste || S.imp.operatrici).filter(x => !COLORI_CALENDAR[nomeChiave(x)]);
+  return COLORI[altre.indexOf(n) % COLORI.length] || ["#7c8796", "#eef0f3"];
+};
+// Colore di un blocco: quello dell'operatrice; se è scritto a mano senza operatrice, il suo colore di Calendar.
+const tintaDi = a => a.operatrice && a.operatrice !== TUTTE ? coloreDi(a.operatrice)[0]
+  : a.esterno && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore] : "#7c8796";
 const varColore = n => { const [c, c2] = coloreDi(n); return `--c:${c};--c2:${c2}`; };
 const NOMI_SCALA = { giorno: "Giorno", settimana: "Settimana", mese: "Mese", anno: "Anno" };
 const nomeCorto = n => { const p = String(n || "").trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[1][0]}.` : p[0]; };
@@ -741,6 +775,7 @@ function barra(conta) {
       <button id="domani" aria-label="Avanti">›</button>
       <strong>${titoloVista()}</strong>
       <span class="tenue contaGiorno" style="margin-left:auto">${conta}</span>
+      ${S.scala === "giorno" || S.scala === "settimana" ? `<div class="zoom" role="group" aria-label="Zoom"><button id="zMeno" aria-label="Rimpicciolisci" title="Rimpicciolisci (Ctrl + rotellina)">−</button><button id="zPiu" aria-label="Ingrandisci" title="Ingrandisci (Ctrl + rotellina)">+</button></div>` : ""}
       <div class="scale" role="group" aria-label="Vista">${Object.entries(NOMI_SCALA).map(([k, t]) => `<button data-scala="${k}" class="${k === S.scala ? "attiva" : ""}">${t}</button>`).join("")}</div>
     </div>`;
 }
@@ -759,6 +794,7 @@ function legaBarra() {
   $("ieri").onclick = () => vaiA(passo(-1));
   $("domani").onclick = () => vaiA(passo(1));
   $("oggi").onclick = () => vaiA(new Date());
+  if ($("zPiu")) { $("zPiu").onclick = () => zooma(1.25); $("zMeno").onclick = () => zooma(1 / 1.25); }
   document.querySelectorAll("[data-scala]").forEach(b => b.onclick = () => {
     S.scala = b.dataset.scala;
     localStorage.setItem("agenda-scala", S.scala);
@@ -787,6 +823,84 @@ const tabOperatrici = () => {
 const yDi = d => (d.getHours() * 60 + d.getMinutes() - ORA_INIZIO * 60) * PX_MIN;
 const visibileFiltro = a => !S.filtro || a.esterno || a.operatrice === S.filtro || a.operatrice === TUTTE;
 
+// Zoom: tiene fermo il punto sotto il dito (o il centro) mentre la griglia si allunga.
+function zooma(fattore, cx, cy) {
+  const nuovo = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, ZOOM * fattore));
+  const g = $("griglia"), zona = g?.querySelector(".grigliaZona");
+  if (!zona || Math.abs(nuovo - ZOOM) < 0.005) return;
+  const r = g.getBoundingClientRect();
+  const dy = (cy ?? r.top + g.clientHeight / 2) - r.top, dx = (cx ?? r.left + g.clientWidth / 2) - r.left;
+  const minuto = (g.scrollTop + dy - zona.offsetTop) / PX_MIN;
+  const quota = (g.scrollLeft + dx) / Math.max(1, g.scrollWidth);
+  ZOOM = nuovo; PX_MIN = PX_BASE * ZOOM;
+  localStorage.setItem("agenda-zoom", String(Math.round(ZOOM * 100) / 100));
+  disegnaAgenda();
+  const g2 = $("griglia"), z2 = g2.querySelector(".grigliaZona");
+  g2.scrollTop = z2.offsetTop + minuto * PX_MIN - dy;
+  g2.scrollLeft = quota * g2.scrollWidth - dx;
+}
+const zoomAttivo = e => (S.scala === "giorno" || S.scala === "settimana") && S.vista === "agenda" && e.target.closest?.("#griglia");
+// Ctrl + rotellina, e il pizzico del touchpad (che il browser manda come Ctrl + rotellina)
+let zoomRuota = 1, zoomRuotaPunto = null;
+$("main").addEventListener("wheel", e => {
+  if (!e.ctrlKey || !zoomAttivo(e)) return;
+  e.preventDefault();
+  zoomRuota *= Math.exp(-Math.max(-60, Math.min(60, e.deltaY)) * 0.006);
+  zoomRuotaPunto = [e.clientX, e.clientY];
+  if (zoomRuota !== 1 && !zooma.attesa) zooma.attesa = requestAnimationFrame(() => {
+    zooma.attesa = 0; const f = zoomRuota; zoomRuota = 1; zooma(f, ...zoomRuotaPunto);
+  });
+}, { passive: false });
+// due dita sul telefono. Ogni scatto di zoom ridisegna la griglia: il dito resta legato all'elemento
+// toccato per primo, che esce dalla pagina e non fa più risalire gli eventi. Si ascolta lui direttamente.
+let pizzico = null;
+const distanza = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+const muoviPizzico = e => {
+  if (!pizzico || e.touches.length !== 2) return;
+  e.preventDefault();
+  const voluto = pizzico.z * distanza(e.touches) / pizzico.d;
+  if (Math.abs(voluto / ZOOM - 1) < 0.06 || zooma.attesa) return;
+  const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2, cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+  zooma.attesa = requestAnimationFrame(() => { zooma.attesa = 0; zooma(voluto / ZOOM, cx, cy); });
+};
+const finePizzico = e => {
+  if (e.touches.length >= 2 || !pizzico) return;
+  pizzico.bersagli.forEach(t => { t.removeEventListener("touchmove", muoviPizzico); t.removeEventListener("touchend", finePizzico); t.removeEventListener("touchcancel", finePizzico); });
+  pizzico = null;
+};
+$("main").addEventListener("touchstart", e => {
+  if (e.touches.length !== 2 || !zoomAttivo(e)) return;
+  const bersagli = [...new Set([...e.touches].map(t => t.target))];
+  bersagli.forEach(t => { t.addEventListener("touchmove", muoviPizzico, { passive: false }); t.addEventListener("touchend", finePizzico); t.addEventListener("touchcancel", finePizzico); });
+  pizzico = { d: distanza(e.touches), z: ZOOM, bersagli };
+}, { passive: true });
+
+// Come Google Calendar: gli eventi che si sovrappongono si dividono la larghezza del giorno.
+// Restituisce [evento, colonna, colonne del suo gruppo].
+function disponi(voci) {
+  const ord = [...voci].sort((p, q) => p.inizio < q.inizio ? -1 : p.inizio > q.inizio ? 1 : p.fine > q.fine ? -1 : 1);
+  const out = [];
+  let gruppo = [], fineGruppo = "";
+  const chiudi = () => {
+    const colonne = [];
+    const posti = gruppo.map(a => {
+      let c = colonne.findIndex(f => f <= a.inizio);
+      if (c < 0) { c = colonne.length; colonne.push(""); }
+      colonne[c] = a.fine;
+      return [a, c];
+    });
+    posti.forEach(([a, c]) => out.push([a, c, colonne.length]));
+    gruppo = []; fineGruppo = "";
+  };
+  for (const a of ord) {
+    if (gruppo.length && a.inizio >= fineGruppo) chiudi();
+    gruppo.push(a);
+    if (a.fine > fineGruppo) fineGruppo = a.fine;
+  }
+  if (gruppo.length) chiudi();
+  return out;
+}
+
 function disegnaSettimana() {
   const chiave = "s" + chiaveGiorno(lunedi(S.giorno));
   const scrollPrima = S.scrollFatto === chiave ? $("griglia")?.scrollTop : null;
@@ -797,31 +911,48 @@ function disegnaSettimana() {
   const voci = tutti.flatMap(d => delGiorno(chiaveGiorno(d)).filter(a => haOre(a) && visibileFiltro(a)));
   const giorni = tutti.filter(d => orarioDel(d) || delGiorno(chiaveGiorno(d)).some(haOre));
   const solo = !!S.filtro;
-  const corsie = solo ? [S.filtro] : S.opViste.concat(voci.some(a => a.esterno) ? [""] : []);
   const altezza = (ORA_FINE - ORA_INIZIO) * 60 * PX_MIN;
   const ore = [...Array(ORA_FINE - ORA_INIZIO).keys()].map(i => i ? `<div class="ora" style="top:${i * 60 * PX_MIN}px">${ORA_INIZIO + i}:00</div>` : "").join("");
+  // larghezza di un giorno: con lo zoom oltre 1 i giorni si allargano e la settimana scorre di lato
+  const spazio = Math.max(280, ($("main").clientWidth || innerWidth) - 48);
+  const colPx = Math.max(spazio / Math.max(1, giorni.length), ZOOM > 1 ? spazio / Math.max(1, giorni.length) * ZOOM : 0);
+  const colMin = ZOOM > 1 ? Math.round(colPx) : 0;
+
+  const blocco = (a, c, n) => {
+    const ini = new Date(a.inizio), fin = new Date(a.fine);
+    const alto = Math.max((fin - ini) / 60000 * PX_MIN - 1, 12);
+    const largo = colPx / n - 2;
+    const pertutte = a.operatrice === TUTTE;
+    const nome = a.esterno ? a.titolo : a.blocco ? `🔒 ${a.cliente}` : a.cliente;
+    const segno = a.stato === "fatto" ? "✓ " : "";
+    const orario = `${oraDi(ini)}–${oraDi(fin)}`;
+    const servizi = a.esterno || a.blocco ? "" : (a.servizi || []).join(", ");
+    // il testo segue lo spazio: niente scritte in un blocco troppo stretto, una riga in uno basso
+    let dentro = "";
+    if (largo >= 40) {
+      if (alto < 30) dentro = `<b>${segno}${oraDi(ini)} ${esc(nome)}</b>`;
+      else dentro = `<b>${segno}${esc(nome)}</b><span>${orario}</span>${alto >= 46 && servizi ? `<span>${esc(servizi)}</span>` : ""}`;
+    }
+    const stile = pertutte
+      ? `top:${yDi(ini)}px;height:${alto}px;left:0;width:100%`
+      : `top:${yDi(ini)}px;height:${alto}px;left:calc(${c / n * 100}% + 1px);width:calc(${100 / n}% - 2px);--t:${tintaDi(a)}`;
+    return `<button class="app gc ${alto < 30 ? "basso" : ""} ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${pertutte ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${orario} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">${dentro}</button>`;
+  };
 
   const colonne = giorni.map(d => {
-    const k = chiaveGiorno(d), orario = orarioDel(d);
-    const fasce = fasceChiuse(d, altezza);
-    const chiuso = fasce.map(([a, b]) => `<div class="chiuso" style="top:${a}px;height:${b - a}px"></div>`).join("");
-    const blocchi = voci.filter(a => chiaveGiorno(new Date(a.inizio)) === k).map(a => {
-      const ini = new Date(a.inizio), fin = new Date(a.fine);
-      const c = Math.max(0, corsie.indexOf(a.esterno ? "" : a.operatrice));
-      const nome = a.esterno ? a.titolo : a.blocco ? `🔒 ${a.cliente}` : a.cliente;
-      const alto = (fin - ini) / 60000 * PX_MIN >= 30;     // nei blocchi bassi ci sta solo l'ora
-      const largo = a.operatrice === TUTTE;
-      const stile = `top:${yDi(ini)}px;height:${Math.max((fin - ini) / 60000 * PX_MIN - 1, 14)}px;left:${solo && a.esterno ? 60 : largo ? 0 : c / corsie.length * 100}%;right:auto;width:${solo && a.esterno ? 40 : largo ? 100 : 100 / corsie.length}%;${varColore(a.operatrice)}`;
-      return `<button class="app ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.operatrice === TUTTE ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${oraDi(ini)} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">
-        <b>${oraDi(ini)}</b>${alto ? `<span>${esc(a.blocco ? (largo || solo ? nome : "🔒") : solo && !a.esterno ? nomeCorto(nome) : String(nome).split(" ")[0])}</span>` : ""}</button>`;
-    }).join("");
-    return `<div class="colonna"><div class="pista" data-pg="${k}" style="height:${altezza}px;--oraPx:${60 * PX_MIN}px">${chiuso}${blocchi}</div></div>`;
+    const k = chiaveGiorno(d);
+    const chiuso = fasceChiuse(d, altezza).map(([a, b]) => `<div class="chiuso" style="top:${a}px;height:${b - a}px"></div>`).join("");
+    const delDi = voci.filter(a => chiaveGiorno(new Date(a.inizio)) === k);
+    const riga = k === oggi ? `<div class="adesso" style="top:${yDi(new Date())}px"></div>` : "";
+    const blocchi = delDi.filter(a => a.operatrice === TUTTE).map(a => blocco(a, 0, 1)).join("")
+      + disponi(delDi.filter(a => a.operatrice !== TUTTE)).map(([a, c, n]) => blocco(a, c, n)).join("");
+    return `<div class="colonna"><div class="pista" data-pg="${k}" style="height:${altezza}px;--oraPx:${60 * PX_MIN}px">${chiuso}${riga}${blocchi}</div></div>`;
   }).join("");
 
   const teste = giorni.map(d => `<button class="tab ${chiaveGiorno(d) === oggi ? "oggi" : ""}" data-vai="${chiaveGiorno(d)}" style="--c:var(--linea)">${d.toLocaleDateString("it-IT", { weekday: "short" })} ${d.getDate()}</button>`).join("");
   $("main").innerHTML = `${bannerRete()}${barra(`${voci.filter(soloApp).length} appuntamenti`)}
     <div class="filtri">${tab}</div>
-    <div class="scorre" id="griglia"><div class="testate"><div class="angolo"></div>${teste}</div>
+    <div class="scorre" id="griglia" style="--colMin:${colMin}px;--largo:${colMin ? `calc(var(--gut) + ${colMin * giorni.length}px)` : "100%"}"><div class="testate settT"><div class="angolo"></div>${teste}</div>
       <div class="grigliaZona sett ${solo ? "solo1" : ""}"><div class="ore">${ore}</div>${colonne}</div></div>`;
   $("griglia").scrollTop = scrollPrima ?? Math.max(0, (9 * 60 - ORA_INIZIO * 60 - 30) * PX_MIN);
   S.scrollFatto = chiave;
@@ -1979,7 +2110,7 @@ function mostraFumetto(b) {
   const f = $("fumetto"), ini = new Date(a.inizio), fin = new Date(a.fine);
   const quando = `${ini.toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short" })}, ${oraDi(ini)}–${oraDi(fin)} · ${durataTesto((fin - ini) / 60000)}`;
   const stato = { fatto: "✓ Fatto", noshow: "Non è venuta" }[a.stato] || "";
-  f.style.cssText = `--c:${a.esterno ? "#7c8796" : coloreDi(a.operatrice)[0]}`;
+  f.style.cssText = `--c:${tintaDi(a)}`;
   f.innerHTML = a.blocco
     ? `<b>🔒 ${esc(a.cliente)}</b><div class="riga">${quando}</div><div class="riga">${a.operatrice === TUTTE ? "Tutte le operatrici" : esc(a.operatrice)}</div>`
     : a.esterno
