@@ -273,7 +273,7 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 15;
+const VERSIONE_APP = 16;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
 const ORA_INIZIO = 8, ORA_FINE = 21, PX_MIN = 1.5, GIORNI_CARICATI = 42;
@@ -317,6 +317,21 @@ const S = {
   finestre: [], conteggi: {},
   caricato: false, erroreRete: false, cercaClienti: "", scritture: 0,
 };
+// Fino al 5 nov 2026 una versione di prova (dati inventati) stava sullo stesso sito e scriveva nella
+// stessa memoria del dispositivo. Se ne è rimasto qualcosa, si butta prima che l'agenda lo legga:
+// - collegata alla prova → si scollega e si butta la copia offline (erano appuntamenti finti);
+// - la prova è stata aperta qui → le righe in attesa per il file sul PC potrebbero essere finte:
+//   non si scrivono, si mettono da parte in "agenda-note-coda-scartata".
+const RESTI_PROVA = S.cfg?.url === "demo" || localStorage.getItem("agenda-demo-dati") !== null;
+if (S.cfg?.url === "demo") {
+  S.cfg = null;
+  ["agenda-cfg", "agenda-copia"].forEach(k => localStorage.removeItem(k));
+}
+if (RESTI_PROVA) {
+  const coda = localStorage.getItem("agenda-note-coda");
+  if (coda && coda !== "[]") localStorage.setItem("agenda-note-coda-scartata", coda);
+  ["agenda-note-coda", "agenda-demo-dati"].forEach(k => localStorage.removeItem(k));
+}
 
 // --- Collegamento e server ---------------------------------------------
 
