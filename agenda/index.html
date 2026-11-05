@@ -65,10 +65,12 @@ main{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column}
 .sett,.settT{width:var(--largo,100%);min-width:100%}
 /* spazio bianco tra un giorno e l'altro (Gabriele, 5 nov 2026): i giorni si distinguono a colpo d'occhio */
 .sett,.settT{gap:var(--stacco)}
-:root{--stacco:8px}
-@media (max-width:620px){:root{--stacco:4px}}
+:root{--stacco:14px}
+@media (max-width:620px){:root{--stacco:7px}}
+/* netti (Gabriele, 5 nov 2026): fondo bianco pieno negli stacchi, giorno su fondo rosato con bordo marcato */
 .grigliaZona.sett{background:#fff}
-.sett .colonna{background:var(--fondo);border-left:1px solid var(--linea)}
+.sett .colonna{background:#fdf1f5;border-left:1.5px solid #d9a9bb;border-right:1.5px solid #d9a9bb;box-shadow:0 0 0 1px #fff}
+.settT .tab{border-left:1.5px solid #d9a9bb;border-right:1.5px solid #d9a9bb;background:#fdf1f5}
 .settT .angolo{position:sticky;left:0;background:#fff;z-index:5}
 .sett .app.gc{display:flex;flex-direction:column;justify-content:flex-start;border:0;border-radius:5px;background:var(--t);color:#fff;padding:2px 5px;font-size:12px;line-height:1.25;min-height:0;box-shadow:0 0 0 1px #fff;z-index:1}
 .sett .app.gc b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -294,7 +296,7 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 22;
+const VERSIONE_APP = 23;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
 // Gli stessi colori che le operatrici hanno su Google Calendar (detti da Gabriele il 4 nov 2026,
