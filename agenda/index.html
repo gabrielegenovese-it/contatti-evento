@@ -63,6 +63,12 @@ main{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column}
 .sett .colonna,.settT .tab{min-width:var(--colMin,0)}
 /* allargata con lo zoom: le ore e le testate devono restare attaccate anche scorrendo di lato */
 .sett,.settT{width:var(--largo,100%);min-width:100%}
+/* spazio bianco tra un giorno e l'altro (Gabriele, 5 nov 2026): i giorni si distinguono a colpo d'occhio */
+.sett,.settT{gap:var(--stacco)}
+:root{--stacco:8px}
+@media (max-width:620px){:root{--stacco:4px}}
+.grigliaZona.sett{background:#fff}
+.sett .colonna{background:var(--fondo);border-left:1px solid var(--linea)}
 .settT .angolo{position:sticky;left:0;background:#fff;z-index:5}
 .sett .app.gc{display:flex;flex-direction:column;justify-content:flex-start;border:0;border-radius:5px;background:var(--t);color:#fff;padding:2px 5px;font-size:12px;line-height:1.25;min-height:0;box-shadow:0 0 0 1px #fff;z-index:1}
 .sett .app.gc b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -288,7 +294,7 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 20;
+const VERSIONE_APP = 22;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
 // Gli stessi colori che le operatrici hanno su Google Calendar (detti da Gabriele il 4 nov 2026,
@@ -339,7 +345,10 @@ const coloreDi = n => {
 // Privati di Alessia (Banana su Calendar): restano del loro colore, così si vede che non sono clienti.
 const tintaDi = a => a.privato && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore]
   : a.operatrice && a.operatrice !== TUTTE ? coloreDi(a.operatrice)[0]
-  : a.esterno && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore] : "#7c8796";
+  : a.esterno && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore]
+  // senza colore = colore predefinito del calendario di Alessia (azzurro): come su Calendar. Solo il colore:
+  // non viene assegnato ad Alessia, perché "senza colore" può essere anche un eucalipto di Denisa.
+  : a.esterno && !a.colore ? COLORI_CALENDAR.alessia : "#7c8796";
 const varColore = n => { const [c, c2] = coloreDi(n); return `--c:${c};--c2:${c2}`; };
 const NOMI_SCALA = { giorno: "Giorno", settimana: "Settimana", mese: "Mese", anno: "Anno" };
 const nomeCorto = n => { const p = String(n || "").trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[1][0]}.` : p[0]; };
@@ -959,7 +968,7 @@ function disegnaSettimana() {
   const teste = giorni.map(d => `<button class="tab ${chiaveGiorno(d) === oggi ? "oggi" : ""}" data-vai="${chiaveGiorno(d)}" style="--c:var(--linea)">${d.toLocaleDateString("it-IT", { weekday: "short" })} ${d.getDate()}</button>`).join("");
   $("main").innerHTML = `${bannerRete()}${barra(`${voci.filter(soloApp).length} appuntamenti`)}
     <div class="filtri">${tab}</div>
-    <div class="scorre" id="griglia" style="--colMin:${colMin}px;--largo:${colMin ? `calc(var(--gut) + ${colMin * giorni.length}px)` : "100%"}"><div class="testate settT"><div class="angolo"></div>${teste}</div>
+    <div class="scorre" id="griglia" style="--colMin:${colMin}px;--largo:${colMin ? `calc(var(--gut) + ${colMin * giorni.length}px + var(--stacco) * ${giorni.length})` : "100%"}"><div class="testate settT"><div class="angolo"></div>${teste}</div>
       <div class="grigliaZona sett ${solo ? "solo1" : ""}"><div class="ore">${ore}</div>${colonne}</div></div>`;
   $("griglia").scrollTop = scrollPrima ?? Math.max(0, (9 * 60 - ORA_INIZIO * 60 - 30) * PX_MIN);
   S.scrollFatto = chiave;
