@@ -1,6 +1,6 @@
 // Tiene l'app in memoria sul dispositivo. Prima prova la rete, così la versione nuova
 // si vede subito; senza connessione usa la copia salvata.
-const VERSIONE = "agenda-v25";
+const VERSIONE = "agenda-v26";
 const FILE = ["./", "./index.html", "./listino.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./logo.png"];
 
 self.addEventListener("install", e => {

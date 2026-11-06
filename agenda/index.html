@@ -75,6 +75,10 @@ main{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column}
 .settT{background:#f6dfe7}
 .settT .angolo{position:sticky;left:0;background:#fff;z-index:5}
 .sett .app.gc{display:flex;flex-direction:column;justify-content:flex-start;border:0;border-radius:5px;background:var(--t);color:#fff;padding:2px 5px;font-size:12px;line-height:1.25;min-height:0;box-shadow:0 0 0 1px #fff;z-index:1}
+/* i blocchi in primo piano (z-index alto) restano dentro il giorno: non coprono testate e ore quando si scorre */
+.sett .pista{isolation:isolate}
+.sett .corsia{position:absolute;top:0;bottom:0;border-left:1px dashed #eadbe1;pointer-events:none;background:linear-gradient(var(--t),var(--t)) top/100% 3px no-repeat}
+.sett .corsia:first-of-type{border-left:0}
 .sett .app.gc b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sett .app.gc span{color:#fff;opacity:.92;font-size:11px}
 .sett .app.gc.basso{padding:0 4px;font-size:11px;line-height:1.1}
@@ -298,7 +302,7 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 25;
+const VERSIONE_APP = 26;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
 // Gli stessi colori che le operatrici hanno su Google Calendar (detti da Gabriele il 4 nov 2026,
@@ -897,28 +901,41 @@ $("main").addEventListener("touchstart", e => {
 
 // Come Google Calendar: gli eventi che si sovrappongono si dividono la larghezza del giorno.
 // Restituisce [evento, colonna, colonne del suo gruppo].
+// Si ragiona sulla fine VISIBILE: un evento da 0-10 minuti è disegnato più alto di quanto dura
+// (altezza minima), e se contasse la fine vera il blocco dopo gli finirebbe sopra (ven 6 nov 2026).
+const ALTO_MIN = 18;
+const fineVista = a => Math.max(Date.parse(a.fine), Date.parse(a.inizio) + ALTO_MIN / PX_MIN * 60000);
 function disponi(voci) {
-  const ord = [...voci].sort((p, q) => p.inizio < q.inizio ? -1 : p.inizio > q.inizio ? 1 : p.fine > q.fine ? -1 : 1);
+  const v = voci.map(a => [a, Date.parse(a.inizio), fineVista(a)]);
+  const ord = v.sort((p, q) => p[1] - q[1] || q[2] - p[2]);
   const out = [];
-  let gruppo = [], fineGruppo = "";
+  let gruppo = [], fineGruppo = 0;
   const chiudi = () => {
     const colonne = [];
-    const posti = gruppo.map(a => {
-      let c = colonne.findIndex(f => f <= a.inizio);
-      if (c < 0) { c = colonne.length; colonne.push(""); }
-      colonne[c] = a.fine;
+    const posti = gruppo.map(([a, ini, fin]) => {
+      let c = colonne.findIndex(f => f <= ini);
+      if (c < 0) { c = colonne.length; colonne.push(0); }
+      colonne[c] = fin;
       return [a, c];
     });
     posti.forEach(([a, c]) => out.push([a, c, colonne.length]));
-    gruppo = []; fineGruppo = "";
+    gruppo = []; fineGruppo = 0;
   };
-  for (const a of ord) {
-    if (gruppo.length && a.inizio >= fineGruppo) chiudi();
-    gruppo.push(a);
-    if (a.fine > fineGruppo) fineGruppo = a.fine;
+  for (const x of ord) {
+    if (gruppo.length && x[1] >= fineGruppo) chiudi();
+    gruppo.push(x);
+    if (x[2] > fineGruppo) fineGruppo = x[2];
   }
   if (gruppo.length) chiudi();
   return out;
+}
+// Corsia (colonna colore) di un evento nella settimana: la sua operatrice; gli scritti a mano
+// senza colore sono azzurri come Alessia e stanno nella sua corsia; il resto in una corsia "altro".
+const ALTRO = "__altro__";
+function corsiaDi(a) {
+  if (a.operatrice && a.operatrice !== TUTTE) return a.operatrice;
+  const ale = S.imp.operatrici.find(n => nomeChiave(n) === "alessia");
+  return ale && tintaDi(a) === COLORI_CALENDAR.alessia ? ale : ALTRO;
 }
 
 function disegnaSettimana() {
@@ -938,10 +955,12 @@ function disegnaSettimana() {
   const colPx = Math.max(spazio / Math.max(1, giorni.length), ZOOM > 1 ? spazio / Math.max(1, giorni.length) * ZOOM : 0);
   const colMin = ZOOM > 1 ? Math.round(colPx) : 0;
 
-  const blocco = (a, c, n) => {
+  const blocco = (a, c, n, k = 0, K = 1) => {
     const ini = new Date(a.inizio), fin = new Date(a.fine);
-    const alto = Math.max((fin - ini) / 60000 * PX_MIN - 1, 12);
-    const largo = colPx / n - 2;
+    const alto = Math.max((fin - ini) / 60000 * PX_MIN - 1, ALTO_MIN - 1);
+    const largo = colPx / K / n - 2;
+    // i più brevi sempre davanti: se si toccano, il piccolo resta leggibile sopra il lungo
+    const davanti = 2 + Math.max(0, 600 - Math.round((fin - ini) / 60000));
     const pertutte = a.operatrice === TUTTE;
     const nome = a.esterno ? a.titolo : a.blocco ? `🔒 ${a.cliente}` : a.cliente;
     const segno = a.stato === "fatto" ? "✓ " : "";
@@ -955,18 +974,27 @@ function disegnaSettimana() {
     }
     const stile = pertutte
       ? `top:${yDi(ini)}px;height:${alto}px;left:0;width:100%`
-      : `top:${yDi(ini)}px;height:${alto}px;left:calc(${c / n * 100}% + 1px);width:calc(${100 / n}% - 2px);--t:${tintaDi(a)}`;
+      : `top:${yDi(ini)}px;height:${alto}px;left:calc(${(k + c / n) / K * 100}% + 1px);width:calc(${100 / n / K}% - 2px);z-index:${davanti};--t:${tintaDi(a)}`;
     return `<button class="app gc ${alto < 30 ? "basso" : ""} ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.privato ? "privato" : ""} ${pertutte ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${orario} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">${dentro}</button>`;
   };
 
+  // stesse colonne colore in tutti i giorni della settimana, nello stesso ordine: l'occhio impara dove guardare
+  const corsiePresenti = new Set(voci.filter(a => a.operatrice !== TUTTE).map(corsiaDi));
+  const corsie = [...S.imp.operatrici, ...[...corsiePresenti].filter(c => c !== ALTRO && !S.imp.operatrici.includes(c))];
+  if (corsiePresenti.has(ALTRO)) corsie.push(ALTRO);
   const colonne = giorni.map(d => {
     const k = chiaveGiorno(d);
     const chiuso = fasceChiuse(d, altezza).map(([a, b]) => `<div class="chiuso" style="top:${a}px;height:${b - a}px"></div>`).join("");
     const delDi = voci.filter(a => chiaveGiorno(new Date(a.inizio)) === k);
     const riga = k === oggi ? `<div class="adesso" style="top:${yDi(new Date())}px"></div>` : "";
+    const propri = delDi.filter(a => a.operatrice !== TUTTE);
+    const lista = solo ? [null] : corsie;
     const blocchi = delDi.filter(a => a.operatrice === TUTTE).map(a => blocco(a, 0, 1)).join("")
-      + disponi(delDi.filter(a => a.operatrice !== TUTTE)).map(([a, c, n]) => blocco(a, c, n)).join("");
-    return `<div class="colonna"><div class="pista" data-pg="${k}" style="height:${altezza}px;--oraPx:${60 * PX_MIN}px">${chiuso}${riga}${blocchi}</div></div>`;
+      + lista.map((cors, i) => disponi(solo ? propri : propri.filter(a => corsiaDi(a) === cors))
+        .map(([a, c, n]) => blocco(a, c, n, i, lista.length)).join("")).join("");
+    // righe sottili tra una corsia e l'altra, col colore dell'operatrice in cima
+    const divisori = solo ? "" : corsie.map((cors, i) => `<div class="corsia" style="left:${i / corsie.length * 100}%;width:${100 / corsie.length}%;--t:${cors === ALTRO ? "#9aa0a6" : coloreDi(cors)[0]}"></div>`).join("");
+    return `<div class="colonna"><div class="pista" data-pg="${k}" style="height:${altezza}px;--oraPx:${60 * PX_MIN}px">${chiuso}${divisori}${riga}${blocchi}</div></div>`;
   }).join("");
 
   const teste = giorni.map(d => `<button class="tab ${chiaveGiorno(d) === oggi ? "oggi" : ""}" data-vai="${chiaveGiorno(d)}" style="--c:var(--linea)">${d.toLocaleDateString("it-IT", { weekday: "short" })} ${d.getDate()}</button>`).join("");
