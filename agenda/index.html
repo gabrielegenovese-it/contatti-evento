@@ -298,7 +298,7 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 24;
+const VERSIONE_APP = 25;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
 // Gli stessi colori che le operatrici hanno su Google Calendar (detti da Gabriele il 4 nov 2026,
@@ -308,7 +308,7 @@ const COLORI_CALENDAR = { alessia: "#039be5", marta: "#7986cb", veronica: "#3f51
 // Colore di un evento scritto a mano su Calendar (getColor = numero del colore). Tinte come le mostra Calendar oggi.
 const TINTE_EVENTO = { "1": "#7986cb", "2": "#33b679", "3": "#8e24aa", "4": "#e67c73", "5": "#f6bf26", "6": "#f4511e", "7": "#039be5", "8": "#616161", "9": "#3f51b5", "10": "#0b8043", "11": "#d50000" };
 const chiaro = hex => { const n = parseInt(hex.slice(1), 16), m = c => Math.round(c + (255 - c) * .84); return `rgb(${m(n >> 16)},${m(n >> 8 & 255)},${m(n & 255)})`; };
-const ORA_INIZIO = 8, ORA_FINE = 21, PX_BASE = 1.5, GIORNI_CARICATI = 42;
+const ORA_INIZIO = 6, ORA_FINE = 23, PX_BASE = 1.5, GIORNI_CARICATI = 42;
 // Zoom di giorno e settimana: allunga le ore (e in settimana allarga i giorni). Si ricorda per dispositivo.
 const ZOOM_MIN = 0.6, ZOOM_MAX = 4;
 let ZOOM = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, +localStorage.getItem("agenda-zoom") || 1));
