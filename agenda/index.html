@@ -85,7 +85,7 @@ main{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column}
 .sett .app.gc.blocco{background:repeating-linear-gradient(135deg,var(--t) 0 6px,color-mix(in srgb,var(--t) 55%,#fff) 6px 12px)}
 .sett .app.gc.pertutte{z-index:0;background:repeating-linear-gradient(135deg,#e6e2e8 0 6px,#f4f1f5 6px 12px);box-shadow:none;color:var(--grigio)}
 .sett .app.gc.pertutte span{color:var(--grigio)}
-.sett .app.gc.privato,.sett .app.gc.privato span{color:#3d2c00}
+.sett .app.gc.tipo-conferma,.sett .app.gc.tipo-conferma span{color:#3d2c00}
 .sett .app.gc.fatto{opacity:.55}
 .sett .app.gc.noshow{opacity:.5}
 .zoom{display:flex;gap:2px;background:var(--viola2);border-radius:10px;padding:2px}
@@ -302,7 +302,7 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 26;
+const VERSIONE_APP = 27;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
 // Gli stessi colori che le operatrici hanno su Google Calendar (detti da Gabriele il 4 nov 2026,
@@ -350,14 +350,23 @@ const coloreDi = n => {
   return COLORI[altre.indexOf(n) % COLORI.length] || ["#7c8796", "#eef0f3"];
 };
 // Colore di un blocco: quello dell'operatrice; se è scritto a mano senza operatrice, il suo colore di Calendar.
-// Privati di Alessia (Banana su Calendar): restano del loro colore, così si vede che non sono clienti.
-const tintaDi = a => a.privato && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore]
+// Eventi della legenda di Alessia (Mandarino, Grafite, Banana, Vinaccia, Pomodoro): restano del loro colore di Calendar.
+const tintaDi = a => (a.privato || a.tipo) && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore]
   : a.operatrice && a.operatrice !== TUTTE ? coloreDi(a.operatrice)[0]
   : a.esterno && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore]
   // senza colore = colore predefinito del calendario di Alessia (azzurro): come su Calendar. Solo il colore:
   // non viene assegnato ad Alessia, perché "senza colore" può essere anche un eucalipto di Denisa.
   : a.esterno && !a.colore ? COLORI_CALENDAR.alessia : "#7c8796";
 const varColore = n => { const [c, c2] = coloreDi(n); return `--c:${c};--c2:${c2}`; };
+// Legenda degli altri colori di Calendar, scritta da Alessia (6 nov 2026): il tipo lo decide lo script dal colore.
+const NOMI_TIPO = { presso: "Pressoterapia", conferma: "Da confermare", privato: "Cose di Alessia", interno: "Tra operatrici", nota: "Nota importante" };
+const descriviTipo = a => ({
+  presso: "Pressoterapia (Vinaccia su Calendar): occupa una cabina e la macchina, non un'operatrice.",
+  conferma: "Appuntamento da confermare (Banana su Calendar): occupa una persona, finché non si sa chi.",
+  privato: `Cose di ${esc(a.operatrice || "Alessia")} (Mandarino su Calendar): in questa fascia risulta occupata.`,
+  interno: `Appuntamento tra operatrici (Grafite su Calendar)${a.operatrice ? `: occupa ${esc(a.operatrice)}` : ""}. Non entra negli incassi.`,
+  nota: "Nota o cosa importante (Pomodoro su Calendar): non occupa nessuno."
+})[a.tipo] || "";
 const NOMI_SCALA = { giorno: "Giorno", settimana: "Settimana", mese: "Mese", anno: "Anno" };
 const nomeCorto = n => { const p = String(n || "").trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[1][0]}.` : p[0]; };
 const normalizza = t => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -722,7 +731,8 @@ function libereAlle(chiave, ini, fin, ignoraId) {
   const voci = delGiorno(chiave).filter(a => haOre(a) && a.id !== ignoraId && a.stato !== "noshow"
     && new Date(a.inizio).getTime() < fin && new Date(a.fine).getTime() > ini);
   // scritti a mano senza operatrice riconosciuta: ognuno occupa "una qualsiasi"
-  const esterni = voci.filter(a => a.esterno && !a.operatrice).length;
+  // le note (Pomodoro) e la pressoterapia (Vinaccia) non occupano un'operatrice: la presso conta sulle risorse
+  const esterni = voci.filter(a => a.esterno && !a.operatrice && a.tipo !== "nota" && a.tipo !== "presso").length;
   const libere = S.imp.operatrici.filter(n => !voci.some(a => diChi(a) && (a.operatrice === n || a.operatrice === TUTTE)));
   return libere.length > esterni ? libere : [];
 }
@@ -975,7 +985,7 @@ function disegnaSettimana() {
     const stile = pertutte
       ? `top:${yDi(ini)}px;height:${alto}px;left:0;width:100%`
       : `top:${yDi(ini)}px;height:${alto}px;left:calc(${(k + c / n) / K * 100}% + 1px);width:calc(${100 / n / K}% - 2px);z-index:${davanti};--t:${tintaDi(a)}`;
-    return `<button class="app gc ${alto < 30 ? "basso" : ""} ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.privato ? "privato" : ""} ${pertutte ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${orario} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">${dentro}</button>`;
+    return `<button class="app gc ${alto < 30 ? "basso" : ""} ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.privato ? "privato" : ""} ${a.tipo ? "tipo-" + a.tipo : ""} ${pertutte ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${orario} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">${dentro}</button>`;
   };
 
   // stesse colonne colore in tutti i giorni della settimana, nello stesso ordine: l'occhio impara dove guardare
@@ -1196,8 +1206,8 @@ function apriDettaglio(a) {
   // altrimenti il salvataggio riscriverebbe l'evento di Calendar.
   if (a.blocco && !a.esterno) return apriBlocco({ modifica: a });
   if (a.esterno) {
-    const tipo = a.privato ? `Extra di ${esc(a.operatrice)} (Banana su Calendar): in questa fascia risulta occupata.`
-      : a.assenza ? `Assenza di ${esc(a.operatrice)}: in questa fascia non le vengono proposti appuntamenti.`
+    const tipo = a.assenza ? `Assenza di ${esc(a.operatrice)}: in questa fascia non le vengono proposti appuntamenti.`
+      : a.tipo ? descriviTipo(a)
       : a.operatrice ? `Appuntamento di ${esc(a.operatrice)} (dal colore su Calendar).` : "";
     return apriDialogo(`<h2>${esc(a.titolo)}</h2><p class="tenue">${quando}</p>
       ${tipo ? `<p>${tipo}</p>` : ""}
@@ -2167,11 +2177,11 @@ function mostraFumetto(b) {
   const stato = { fatto: "✓ Fatto", noshow: "Non è venuta" }[a.stato] || "";
   f.style.cssText = `--c:${tintaDi(a)}`;
   f.innerHTML = a.esterno && a.blocco
-    ? `<b>${esc(a.titolo)}</b><div class="riga">${quando}</div><div class="riga">${a.privato ? "Extra" : "Assenza"} · ${esc(a.operatrice)}</div>`
+    ? `<b>${esc(a.titolo)}</b><div class="riga">${quando}</div><div class="riga">${a.assenza ? "Assenza · " + esc(a.operatrice) : esc(NOMI_TIPO[a.tipo] || "") + (a.operatrice ? " · " + esc(a.operatrice) : "")}</div>`
     : a.blocco
     ? `<b>🔒 ${esc(a.cliente)}</b><div class="riga">${quando}</div><div class="riga">${a.operatrice === TUTTE ? "Tutte le operatrici" : esc(a.operatrice)}</div>`
     : a.esterno
-    ? `<b>${esc(a.titolo)}</b><div class="riga">${quando}</div><div class="riga">Scritto su Google Calendar</div>`
+    ? `<b>${esc(a.titolo)}</b><div class="riga">${quando}</div><div class="riga">${a.tipo ? esc(NOMI_TIPO[a.tipo]) : "Scritto su Google Calendar"}</div>`
     : `<b>${esc(a.cliente)}</b><div class="riga">${quando}</div>
        <div class="tratt">${esc((a.servizi || []).join(", "))}</div>
        <div class="fondoF"><span><i class="pallino"></i>${esc(a.operatrice)}</span><span>${euro(a.prezzo || 0)}</span></div>
