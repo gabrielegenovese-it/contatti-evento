@@ -49,7 +49,7 @@ main{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column}
 .grigliaZona{display:flex;min-width:100%;position:relative}
 .ore{width:var(--gut);flex:none;position:sticky;left:0;background:var(--fondo);z-index:3;border-right:1px solid var(--linea)}
 .ora{position:absolute;font-size:12px;color:var(--grigio);right:6px;transform:translateY(-50%)}
-.colonna{flex:1;min-width:0;border-right:1px solid var(--linea)}
+.colonna{flex:1;min-width:0;border-right:1px solid var(--linea);background:#fff}
 .testate{position:sticky;top:0;z-index:4;display:flex;background:#fff;border-bottom:1px solid var(--linea)}
 .angolo{width:var(--gut);flex:none;border-right:1px solid var(--linea)}
 .tab{flex:1;min-width:0;border:0;border-radius:0;border-bottom:3px solid var(--c);background:#fff;font-weight:600;font-size:14px;padding:6px 2px;min-height:40px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -67,10 +67,12 @@ main{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column}
 .sett,.settT{gap:var(--stacco)}
 :root{--stacco:14px}
 @media (max-width:620px){:root{--stacco:7px}}
-/* netti (Gabriele, 5 nov 2026): fondo bianco pieno negli stacchi, giorno su fondo rosato con bordo marcato */
-.grigliaZona.sett{background:#fff}
-.sett .colonna{background:#fdf1f5;border-left:1.5px solid #d9a9bb;border-right:1.5px solid #d9a9bb;box-shadow:0 0 0 1px #fff}
-.settT .tab{border-left:1.5px solid #d9a9bb;border-right:1.5px solid #d9a9bb;background:#fdf1f5}
+/* netti (Gabriele, 5 nov 2026) + fondo BIANCO dove stanno gli appuntamenti (Gabriele, 6 nov 2026):
+   giorni bianchi con bordo marcato, gli stacchi tra un giorno e l'altro rosati */
+.grigliaZona.sett{background:#f6dfe7}
+.sett .colonna{background:#fff;border-left:1.5px solid #d9a9bb;border-right:1.5px solid #d9a9bb}
+.settT .tab{border-left:1.5px solid #d9a9bb;border-right:1.5px solid #d9a9bb;background:#fff}
+.settT{background:#f6dfe7}
 .settT .angolo{position:sticky;left:0;background:#fff;z-index:5}
 .sett .app.gc{display:flex;flex-direction:column;justify-content:flex-start;border:0;border-radius:5px;background:var(--t);color:#fff;padding:2px 5px;font-size:12px;line-height:1.25;min-height:0;box-shadow:0 0 0 1px #fff;z-index:1}
 .sett .app.gc b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -296,7 +298,7 @@ table.inc tfoot td{font-weight:700;background:var(--fondo)}
 <script src="listino.js"></script>
 <script>
 "use strict";
-const VERSIONE_APP = 23;
+const VERSIONE_APP = 24;
 // Un colore per operatrice, nell'ordine delle Impostazioni: [scuro, chiaro].
 const COLORI = [["#6a4a9c", "#ece3f7"], ["#b0245f", "#fde3ec"], ["#2f7358", "#dff0e8"], ["#96601a", "#f7ead6"], ["#8a6d00", "#f8f0cf"], ["#a02a5e", "#f9e3ee"]];
 // Gli stessi colori che le operatrici hanno su Google Calendar (detti da Gabriele il 4 nov 2026,
