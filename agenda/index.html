@@ -256,6 +256,7 @@ nav{position:static}
 .conferma.daconf{background:#fdf3d0;border-left:4px solid #f6bf26;padding:6px 8px;border-radius:6px;color:#5c4400}
 .daconf-sc{margin-top:10px}
 .riepilogando>:not(#fRiep){display:none!important}
+.indietro{border:0;background:none;color:var(--viola);font-weight:600;padding:4px 0;min-height:36px;margin:-4px 0 4px;font-size:15px;cursor:pointer}
 .riep{display:grid;gap:8px;margin:8px 0 4px}
 .riep>div:not(.conferma){display:grid;grid-template-columns:110px 1fr;gap:8px;padding:8px 10px;background:#fdf1f5;border-radius:8px}
 .riep span{color:var(--grigio);font-size:14px}
@@ -1208,7 +1209,44 @@ function vaiA(d) {
 
 // --- Dettaglio appuntamento ----------------------------------------------
 
-function apriDialogo(html) { $("dlgDentro").classList.remove("riepilogando"); $("dlgDentro").innerHTML = html; if (!$("dlg").open) $("dlg").showModal(); $("dlg").scrollTop = 0; document.body.classList.add("modulo"); }
+// Tasto Indietro (Gabriele, 7 nov): ogni finestra aperta dall'interno di un'altra ricorda da dove si veniva.
+// Pila.voci = le finestre precedenti, Pila.corrente = quella aperta ([funzione, argomenti]).
+const Pila = { voci: [], corrente: null, tornando: false, chiudendo: false };
+function navigabile(fn) {
+  const passo = function (...args) {
+    if (!Pila.tornando && Pila.corrente && $("dlg").open) Pila.voci.push(Pila.corrente);
+    Pila.tornando = false;
+    Pila.corrente = [passo, args];
+    return fn.apply(this, args);
+  };
+  return passo;
+}
+function indietro() {
+  const prima = Pila.voci.pop();
+  if (!prima) return chiudi();
+  Pila.tornando = true;
+  prima[0](...prima[1]);
+}
+function apriDialogo(html) {
+  $("dlgDentro").classList.remove("riepilogando");
+  const su = Pila.voci.length ? `<button type="button" class="indietro" id="dIndietro">← Indietro</button>` : "";
+  $("dlgDentro").innerHTML = su + html;
+  if ($("dIndietro")) $("dIndietro").onclick = indietro;
+  if (!$("dlg").open) $("dlg").showModal();
+  // Tasto indietro del telefono: torna alla finestra prima o chiude, invece di uscire dall'app.
+  if (!history.state?.dlg) history.pushState({ dlg: 1 }, "");
+  $("dlg").scrollTop = 0; document.body.classList.add("modulo");
+}
+window.addEventListener("popstate", () => {
+  if (Pila.chiudendo) {                     // history.back() fatto da noi alla chiusura
+    Pila.chiudendo = false;
+    if ($("dlg").open) history.pushState({ dlg: 1 }, "");   // nel frattempo se n'è aperta un'altra
+    return;
+  }
+  if (!$("dlg").open) return;
+  if (Pila.voci.length) { history.pushState({ dlg: 1 }, ""); indietro(); }
+  else chiudi();
+});
 const telefonoLink = t => `<a class="bottone" href="tel:${esc(String(t).replace(/[^\d+]/g, ""))}">Chiama</a>`;
 const chiudi = () => $("dlg").close();
 const giornoBreve = d => d.toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short" });
@@ -1242,6 +1280,8 @@ function statoConferma(a) {
 }
 
 function apriDettaglio(a) {
+  // tornando con Indietro i dati potrebbero essere cambiati: si rilegge l'appuntamento
+  a = S.appuntamenti.find(x => x.id === a.id && x.inizio === a.inizio) || a;
   const ini = new Date(a.inizio), fin = new Date(a.fine);
   const quando = `${giornoLungo(ini)}, ${oraDi(ini)}–${oraDi(fin)}`;
   // Scritti a mano su Calendar (anche se riconosciuti come extra o assenza): si guardano, non si modificano da qui,
@@ -1627,6 +1667,7 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
 
 // Dopo un appuntamento nuovo: se ne aggiunge un altro per la stessa cliente, o si chiede la conferma.
 function dopoSalvato(a) {
+  Pila.voci = []; Pila.corrente = null;   // salvato: niente Indietro verso il modulo già salvato
   const gruppo = delGruppo(a), fin = new Date(a.fine), ini = new Date(a.inizio);
   const cliente = { id: a.clienteId, nome: a.cliente, telefono: a.telefono };
   apriDialogo(`<h2>Appuntamento salvato ✓</h2>
@@ -2321,7 +2362,18 @@ $("btnAggiorna").onclick = async () => {
   location.reload();
 };
 $("dlg").addEventListener("click", e => { if (e.target === $("dlg")) chiudi(); });
+// Le finestre degli appuntamenti e delle clienti ricordano da dove si arriva (tasto Indietro).
+apriDettaglio = navigabile(apriDettaglio);
+apriForm = navigabile(apriForm);
+apriBlocco = navigabile(apriBlocco);
+schedaCliente = navigabile(schedaCliente);
+modificaCliente = navigabile(modificaCliente);
 $("dlg").addEventListener("close", () => {
+  // Se nel frattempo si è già riaperta un'altra finestra, la sua cronologia resta com'è.
+  if ($("dlg").open) return;
+  Pila.voci = []; Pila.corrente = null;
+  // Una sola volta: con più chiusure di fila si uscirebbe dall'app.
+  if (history.state?.dlg && !Pila.chiudendo) { Pila.chiudendo = true; history.back(); }
   document.body.classList.remove("modulo");
   if (S.ritorno) schedaCliente(S.ritorno);
 });
