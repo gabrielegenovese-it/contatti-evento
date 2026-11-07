@@ -250,6 +250,14 @@ nav{position:static}
 .presi div{margin-top:2px}
 .conferma{font-size:14px;margin:6px 0}
 .conferma.si{color:var(--verde);font-weight:600}
+.conferma.daconf{background:#fdf3d0;border-left:4px solid #f6bf26;padding:6px 8px;border-radius:6px;color:#5c4400}
+.daconf-sc{margin-top:10px}
+.riepilogando>:not(#fRiep){display:none!important}
+.riep{display:grid;gap:8px;margin:8px 0 4px}
+.riep>div:not(.conferma){display:grid;grid-template-columns:110px 1fr;gap:8px;padding:8px 10px;background:#fdf1f5;border-radius:8px}
+.riep span{color:var(--grigio);font-size:14px}
+@media (max-width:420px){.riep>div:not(.conferma){grid-template-columns:1fr;gap:2px}}
+.pallinoG{display:inline-block;width:12px;height:12px;border-radius:50%;background:#f6bf26;vertical-align:-1px}
 /* Listino */
 .area{border:1px solid var(--linea);border-radius:12px;padding:8px 10px 10px;margin-top:12px;background:var(--fondo)}
 .areaTesta{display:flex;gap:6px;align-items:center}
@@ -351,7 +359,9 @@ const coloreDi = n => {
 };
 // Colore di un blocco: quello dell'operatrice; se è scritto a mano senza operatrice, il suo colore di Calendar.
 // Eventi della legenda di Alessia (Mandarino, Grafite, Banana, Vinaccia, Pomodoro): restano del loro colore di Calendar.
-const tintaDi = a => (a.privato || a.tipo) && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore]
+const daConf = a => !a.esterno && !a.blocco && !!a.daConfermare;   // preso dall'app "da confermare": giallo Banana
+const tintaDi = a => daConf(a) ? TINTE_EVENTO["5"]
+  : (a.privato || a.tipo) && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore]
   : a.operatrice && a.operatrice !== TUTTE ? coloreDi(a.operatrice)[0]
   : a.esterno && TINTE_EVENTO[a.colore] ? TINTE_EVENTO[a.colore]
   // senza colore = colore predefinito del calendario di Alessia (azzurro): come su Calendar. Solo il colore:
@@ -985,7 +995,7 @@ function disegnaSettimana() {
     const stile = pertutte
       ? `top:${yDi(ini)}px;height:${alto}px;left:0;width:100%`
       : `top:${yDi(ini)}px;height:${alto}px;left:calc(${(k + c / n) / K * 100}% + 1px);width:calc(${100 / n / K}% - 2px);z-index:${davanti};--t:${tintaDi(a)}`;
-    return `<button class="app gc ${alto < 30 ? "basso" : ""} ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.privato ? "privato" : ""} ${a.tipo ? "tipo-" + a.tipo : ""} ${pertutte ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${orario} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">${dentro}</button>`;
+    return `<button class="app gc ${alto < 30 ? "basso" : ""} ${a.esterno ? "esterno" : ""} ${a.blocco ? "blocco" : ""} ${a.privato ? "privato" : ""} ${a.tipo ? "tipo-" + a.tipo : daConf(a) ? "tipo-conferma" : ""} ${pertutte ? "pertutte" : ""} ${a.stato === "fatto" ? "fatto" : ""} ${a.stato === "noshow" ? "noshow" : ""}" style="${stile}" data-app="${esc(a.id)}" data-ini="${esc(a.inizio)}" aria-label="${orario} ${esc(nome)}${a.operatrice ? ", " + esc(a.operatrice) : ""}">${dentro}</button>`;
   };
 
   // stesse colonne colore in tutti i giorni della settimana, nello stesso ordine: l'occhio impara dove guardare
@@ -1112,7 +1122,8 @@ function disegnaGiorno() {
 
   const blocco = (a, sx, tot) => {
     const ini = new Date(a.inizio), fin = new Date(a.fine);
-    const tinta = a.esterno && diChi(a) ? tintaDi(a) : "";   // scritto a mano ma riconosciuto: nel colore giusto
+    // scritto a mano ma riconosciuto: nel colore giusto; da confermare: giallo
+    const tinta = (a.esterno && diChi(a)) || daConf(a) ? tintaDi(a) : "";
     const stile = `top:${y(ini)}px;height:${Math.max((fin - ini) / 60000 * PX_MIN - 2, 22)}px;left:calc(3px + ${sx / tot * 100}%);right:auto;width:calc(${100 / tot}% - 6px)${tinta ? `;--c:${tinta};--c2:${chiaro(tinta)}` : ""}`;
     const nome = a.esterno ? a.titolo : a.blocco ? `🔒 ${a.cliente}` : a.cliente;
     const segno = a.stato === "fatto" ? "✓ " : "";
@@ -1167,7 +1178,7 @@ function vaiA(d) {
 
 // --- Dettaglio appuntamento ----------------------------------------------
 
-function apriDialogo(html) { $("dlgDentro").innerHTML = html; if (!$("dlg").open) $("dlg").showModal(); $("dlg").scrollTop = 0; document.body.classList.add("modulo"); }
+function apriDialogo(html) { $("dlgDentro").classList.remove("riepilogando"); $("dlgDentro").innerHTML = html; if (!$("dlg").open) $("dlg").showModal(); $("dlg").scrollTop = 0; document.body.classList.add("modulo"); }
 const telefonoLink = t => `<a class="bottone" href="tel:${esc(String(t).replace(/[^\d+]/g, ""))}">Chiama</a>`;
 const chiudi = () => $("dlg").close();
 const giornoBreve = d => d.toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short" });
@@ -1195,6 +1206,7 @@ async function chiediConferma(lista) {
 
 function statoConferma(a) {
   if (a.confermato) return `<div class="conferma si">✓ La cliente ha confermato</div>`;
+  if (daConf(a)) return `<div class="conferma daconf">Da confermare (in giallo): quando la cliente conferma, tocca "Ha confermato"${a.conferma ? ` · conferma chiesta ${giornoBreve(new Date(a.conferma))} alle ${oraDi(new Date(a.conferma))}` : ""}</div>`;
   if (a.conferma) return `<div class="conferma">Conferma chiesta ${giornoBreve(new Date(a.conferma))} alle ${oraDi(new Date(a.conferma))}, ancora senza risposta</div>`;
   return `<div class="conferma tenue">Conferma non ancora chiesta</div>`;
 }
@@ -1248,7 +1260,8 @@ function apriDettaglio(a) {
   if ($("dConf")) $("dConf").onclick = async () => { await chiediConferma(gruppo); chiudi(); };
   $("dOk").onclick = async () => {
     // Una risposta "OK" vale per tutto il giro preso insieme.
-    for (const x of gruppo) await salvaServer({ ...x, confermato: !a.confermato }, true);
+    // Confermando, il giallo "da confermare" se ne va e torna il colore dell'operatrice.
+    for (const x of gruppo) await salvaServer({ ...x, confermato: !a.confermato, daConfermare: a.confermato ? !!x.daConfermare : false }, true);
     chiudi(); avviso(a.confermato ? "Conferma tolta" : "Segnato: ha confermato");
   };
   $("dAltro").onclick = () => apriForm({
@@ -1309,6 +1322,7 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
     stato: modifica?.stato || "prenotato",
     promemoria: modifica?.promemoria || "",
     conferma: modifica?.conferma || "", confermato: !!modifica?.confermato,
+    daConfermare: !!modifica?.daConfermare,
     gruppo: modifica?.gruppo || gruppo || "",
     cercaS: "",
   };
@@ -1337,6 +1351,7 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
     </div>
     <label for="fNote">Note</label>
     <input id="fNote" maxlength="300" value="${esc(F.note)}">
+    <label class="riga daconf-sc"><input id="fDaConf" type="checkbox" ${F.daConfermare ? "checked" : ""}> <i class="pallinoG"></i> Da confermare (in giallo finché la cliente non conferma)</label>
     <div class="totale"><span id="fDurata"></span><span id="fPrezzo"></span></div>
     <div id="fAvviso"></div>
     <div class="azioni">
@@ -1474,10 +1489,46 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
   $("fOra").onchange = e => { F.ora = e.target.value; disegnaDisp(); };
   $("fMin").onchange = e => { F.minuti = Math.max(5, +e.target.value || 5); F.minutiManuali = true; ricalcola(); };
   $("fNote").oninput = e => F.note = e.target.value;
+  $("fDaConf").onchange = e => { F.daConfermare = e.target.checked; if (F.daConfermare) F.confermato = false; };
   $("fAnnulla").onclick = chiudi;
   if ($("fBlocca")) $("fBlocca").onclick = () => apriBlocco({ giorno: F.giorno, ora: F.ora, operatrice: F.operatrice });
 
-  const salva = async forza => {
+  // Riepilogo prima di salvare un appuntamento nuovo (Gabriele, 7 nov): Annulla, Modifica o Conferma e salva.
+  // Il modulo resta sotto, nascosto: "Modifica" lo rimette com'era.
+  const tornaAlModulo = () => {
+    $("fRiep")?.remove();
+    $("dlgDentro").classList.remove("riepilogando");
+    $("dlg").scrollTop = 0;
+  };
+  const riepilogo = (forza, inizio, fineMs) => {
+    const libere = F.operatrice ? [] : libereAlle(F.giorno, inizio.getTime(), fineMs, F.id);
+    const chi = F.operatrice || (libere[0] ? `${libere[0]} (la prima libera)` : "nessuna libera a quell'ora");
+    $("dlgDentro").classList.add("riepilogando");
+    const box = document.createElement("div");
+    box.id = "fRiep";
+    box.innerHTML = `<h2>Controlla prima di salvare</h2>
+      <div class="riep">
+        <div><span>Cliente</span><b>${esc(F.nome)}${F.nuova ? " (nuova)" : ""}</b></div>
+        <div><span>Trattamenti</span><b>${esc(F.servizi.map(s => s.nome).join(", "))}</b></div>
+        <div><span>Quando</span><b>${giornoLungo(inizio)}, ${oraDi(inizio)}–${oraDi(new Date(fineMs))}</b></div>
+        <div><span>Durata</span><b>${durataTesto(F.minuti)}</b></div>
+        <div><span>Operatrice</span><b>${esc(chi)}</b></div>
+        <div><span>Prezzo</span><b>${euro(F.prezzo || 0)}</b></div>
+        ${F.note ? `<div><span>Note</span><b>${esc(F.note)}</b></div>` : ""}
+        ${F.daConfermare ? `<div class="conferma daconf">Da confermare: resterà in giallo finché la cliente non conferma</div>` : ""}
+      </div>
+      <div class="azioni">
+        <button id="rAnnulla" type="button">Annulla</button>
+        <button id="rModifica" type="button">Modifica</button>
+        <button id="rSalva" type="button" class="pieno" style="margin-left:auto">Conferma e salva</button>
+      </div>`;
+    $("dlgDentro").append(box);
+    $("dlg").scrollTop = 0;
+    $("rAnnulla").onclick = chiudi;
+    $("rModifica").onclick = tornaAlModulo;
+    $("rSalva").onclick = () => { tornaAlModulo(); salva(forza, true); };
+  };
+  const salva = async (forza, visto) => {
     if (F.nuova) {
       F.nome = $("nNome").value.trim(); F.telefono = $("nTel").value.trim();
       if (!F.nome) return mostra("Scrivi il nome della cliente");
@@ -1495,6 +1546,7 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
       $("fForza").onclick = () => salva(true);
       return $("fAvviso").scrollIntoView({ block: "center" });
     }
+    if (!modifica && !visto) return riepilogo(forza, inizio, fineMs);
     $("fSalva").disabled = true;
     try {
       if (F.nuova) {
@@ -1515,7 +1567,7 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
         servizi: F.servizi.map(s => s.nome), inizio: inizio.toISOString(),
         fine: new Date(fineMs).toISOString(),
         usa: usoDi(F.servizi), operatrice: F.operatrice, prezzo: F.prezzo, note: F.note, stato: F.stato, promemoria: F.promemoria,
-        gruppo: F.gruppo, conferma: F.conferma, confermato: F.confermato,
+        gruppo: F.gruppo, conferma: F.conferma, confermato: F.confermato, daConfermare: F.daConfermare,
       }, forza);
       if (r?.conflitti) {
         const nomi = r.conflitti.map(c => `${oraDi(new Date(c.inizio))} ${c.cliente || c.titolo}`).join(", ");
@@ -2187,6 +2239,7 @@ function mostraFumetto(b) {
        <div class="fondoF"><span><i class="pallino"></i>${esc(a.operatrice)}</span><span>${euro(a.prezzo || 0)}</span></div>
        ${a.telefono ? `<div class="riga">${esc(a.telefono)}</div>` : ""}
        ${stato ? `<div class="riga">${stato}</div>` : ""}
+       ${daConf(a) ? `<div class="riga">Da confermare</div>` : ""}
        ${a.note ? `<div class="nota">${esc(a.note)}</div>` : ""}`;
   // Accanto al blocco, dal lato dove c'è spazio; mai fuori dallo schermo.
   f.style.display = "block";
