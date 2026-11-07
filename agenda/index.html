@@ -235,8 +235,11 @@ nav{position:static}
 .calGriglia{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .calGriglia .gs{font-size:11px;color:var(--grigio);text-align:center;text-transform:capitalize}
 .calGriglia button{min-height:38px;padding:2px 0;border-radius:8px;font-size:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1}
-.calGriglia button i{display:block;width:16px;height:4px;border-radius:2px;background:transparent}
-.calGriglia .gLibero i{background:#2e9e64}.calGriglia .gPochi i{background:#d39b17}.calGriglia .gPieno i{background:#c9c0c6}
+.calGriglia button i{display:block;width:24px;height:5px;border-radius:3px;background:transparent}
+/* barretta = quanto è libero il giorno (--pct), su fondo grigio chiaro */
+.calGriglia .gLibero i{background:linear-gradient(90deg,#2e9e64 var(--pct),#e6e0e4 var(--pct))}
+.calGriglia .gPochi i{background:linear-gradient(90deg,#d39b17 var(--pct),#e6e0e4 var(--pct))}
+.calGriglia .gPieno i{background:#c9c0c6}
 .calGriglia .gPieno{color:#a59eae}
 .calGriglia .chiusoG{background:repeating-linear-gradient(45deg,#fdeef2,#fdeef2 5px,#fff6f8 5px,#fff6f8 10px);color:#a59eae}
 .calGriglia .fuoriM{visibility:hidden}
@@ -757,6 +760,28 @@ function risorsaPiena(chiave, ini, fin, usa, ignoraId) {
     const picco = Math.max(...istanti.map(t => chi.filter(a => new Date(a.inizio).getTime() <= t && new Date(a.fine).getTime() > t).length));
     return S.imp.risorse[r] != null && picco >= S.imp.risorse[r];
   }) || null;
+}
+
+// Quanto è libero un giorno, da 0 a 1: a ogni quarto d'ora dell'orario (pausa esclusa; oggi solo da adesso)
+// conta le operatrici libere, togliendo quelle occupate dagli scritti a mano non riconosciuti. null = nessun orario.
+function quotaLibera(chiave, operatrice, ignoraId) {
+  const d = new Date(chiave + "T12:00:00"), o = orarioDel(d);
+  if (!o) return null;
+  const p = pausaDel(d), ora = Date.now(), quante = operatrice ? 1 : S.imp.operatrici.length;
+  let libere = 0, totale = 0;
+  for (let m = minDa(o[0]); m + 15 <= minDa(o[1]); m += 15) {
+    if (p && m < minDa(p[1]) && m + 15 > minDa(p[0])) continue;
+    const ini = aData(chiave, `${due(Math.floor(m / 60))}:${due(m % 60)}`).getTime(), fin = ini + 15 * 60000;
+    if (fin <= ora) continue;
+    const voci = delGiorno(chiave).filter(a => haOre(a) && a.id !== ignoraId && a.stato !== "noshow"
+      && new Date(a.inizio).getTime() < fin && new Date(a.fine).getTime() > ini);
+    const esterni = voci.filter(a => a.esterno && !a.operatrice && a.tipo !== "nota" && a.tipo !== "presso").length;
+    const occupata = n => voci.some(a => diChi(a) && (a.operatrice === n || a.operatrice === TUTTE || (a.altre || []).includes(n)));
+    const lib = (operatrice ? [operatrice] : S.imp.operatrici).filter(n => !occupata(n)).length;
+    libere += operatrice ? lib : Math.max(0, lib - esterni);
+    totale += quante;
+  }
+  return totale ? libere / totale : 0;
 }
 
 // Gli orari d'inizio liberi in un giorno, ogni 15 minuti, con chi è libera a quell'ora.
@@ -1382,23 +1407,26 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
       const d = piuGiorni(primo, i), k = chiaveGiorno(d);
       if (d.getMonth() !== m.getMonth()) return `<span class="fuoriM"></span>`;
       const cls = [k === F.giorno ? "sceltoG" : "", k === oggi ? "oggiG" : ""];
-      let titolo = "";
+      let titolo = "", pct = 100;
       if (!orarioDel(d)) { cls.push("chiusoG"); titolo = "chiuso"; }
       else if (k < oggi) { cls.push("gPieno"); titolo = "passato"; }
       else if (pronto) {
+        // Il colore dice quanto è davvero libero il giorno (ore-operatrice libere sul totale dell'orario),
+        // non solo se c'è un buco: con 4 operatrici un buco c'è quasi sempre (Gabriele, 7 nov).
         const liberi = slotLiberi(k, durata, op, F.id, usa) || [];
-        const o = orarioDel(d), tot = Math.max(1, (minDa(o[1]) - minDa(o[0]) - durata) / 15 + 1);
-        cls.push(!liberi.length ? "gPieno" : liberi.length / tot < .35 ? "gPochi" : "gLibero");
-        titolo = liberi.length ? `${liberi.length} orari liberi` : "pieno";
+        const quota = quotaLibera(k, op, F.id);
+        pct = quota == null ? 0 : Math.round(quota * 100);
+        cls.push(!liberi.length || quota === 0 ? "gPieno" : quota < .4 ? "gPochi" : "gLibero");
+        titolo = liberi.length ? `${pct}% libero, ${liberi.length} orari possibili` : "pieno";
       }
-      return `<button type="button" class="${cls.join(" ")}" data-dg="${k}" title="${titolo}" aria-label="${d.getDate()} ${titolo}">${d.getDate()}<i></i></button>`;
+      return `<button type="button" class="${cls.join(" ")}" data-dg="${k}" title="${titolo}" aria-label="${d.getDate()} ${titolo}" style="--pct:${pct}%">${d.getDate()}<i></i></button>`;
     }).join("");
     const teste = [...Array(7).keys()].map(i => `<span class="gs">${piuGiorni(primo, i).toLocaleDateString("it-IT", { weekday: "short" }).slice(0, 3)}</span>`).join("");
     $("fCal").innerHTML = `<div class="calTesta"><button type="button" id="cmPrima" aria-label="Mese prima">‹</button>
         <strong>${m.toLocaleDateString("it-IT", { month: "long", year: "numeric" })}</strong>
         <button type="button" id="cmDopo" aria-label="Mese dopo">›</button></div>
       <div class="calGriglia">${teste}${celle}</div>
-      <div class="legenda"><span><i style="background:#2e9e64"></i>libero</span><span><i style="background:#d39b17"></i>quasi pieno</span><span><i style="background:#c9c0c6"></i>pieno</span>${pronto ? "" : "<span>Sto caricando…</span>"}</div>`;
+      <div class="legenda"><span><i style="background:#2e9e64"></i>libero</span><span><i style="background:#d39b17"></i>quasi pieno (meno del 40% libero)</span><span><i style="background:#c9c0c6"></i>pieno</span><span>la barretta è la parte libera del giorno</span>${pronto ? "" : "<span>Sto caricando…</span>"}</div>`;
     $("cmPrima").onclick = () => { F.mese = new Date(m.getFullYear(), m.getMonth() - 1, 1, 12); disegnaDisp(); };
     $("cmDopo").onclick = () => { F.mese = new Date(m.getFullYear(), m.getMonth() + 1, 1, 12); disegnaDisp(); };
     $("fCal").querySelectorAll("[data-dg]").forEach(b => b.onclick = () => { F.giorno = b.dataset.dg; $("fGiorno").value = F.giorno; disegnaDisp(); });
