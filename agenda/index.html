@@ -496,11 +496,13 @@ function caricaCopia() {
 }
 
 // Impostazioni salvate prima di una versione nuova: si completano con quello che manca.
+const NEGOZIO_PARTENZA = { 0: null, 1: ["09:30", "18:30"], 2: ["09:30", "18:30"], 3: ["09:30", "18:30"], 4: ["09:30", "18:30"], 5: ["09:30", "18:30"], 6: ["09:30", "18:30"] };
 function normalizzaImp(x) {
   const imp = { ...IMPOSTAZIONI_PARTENZA, ...(x || {}) };
   const vecchie = x && (!x.risorse || x.risorse.pressoterapia == null);
   imp.risorse = { ...IMPOSTAZIONI_PARTENZA.risorse, ...(x?.risorse || {}) };
   imp.pause = imp.pause || {};
+  imp.negozio = JSON.parse(JSON.stringify(x?.negozio || NEGOZIO_PARTENZA));
   // Prima della macchina della pressoterapia quei trattamenti tenevano solo una cabina.
   if (vecchie) imp.servizi = imp.servizi.map(s => /pressoterapia/i.test(s.nome) && (!s.usa || s.usa === "cabina") ? { ...s, usa: "pressoterapia" } : s);
   const cat = [...(imp.categorie || []), ...imp.servizi.map(s => s.categoria || "Altro")];
@@ -716,6 +718,9 @@ function delGiorno(chiave) {
 }
 
 function orarioDel(d) { return S.imp.orari[d.getDay()] || null; }
+// Orario del negozio (Gabriele, 7 nov): conta per le disponibilità e per l’avviso "fuori orario".
+// Gli orari di apertura qui sopra restano quelli VISIBILI in agenda, più larghi: capita di fissare appuntamenti fuori orario.
+function orarioNegozio(d) { return S.imp.negozio?.[d.getDay()] || null; }
 // La pausa vale solo se il giorno è aperto e se sta dentro l'orario.
 function pausaDel(d) {
   const o = orarioDel(d), p = S.imp.pause?.[d.getDay()];
@@ -730,7 +735,7 @@ function fasceChiuse(d, altezza) {
 }
 // "chiuso" se fuori orario, "pausa" se tocca la pausa, altrimenti null.
 function fuoriOrario(chiave, ini, fin) {
-  const d = new Date(chiave + "T12:00:00"), o = orarioDel(d);
+  const d = new Date(chiave + "T12:00:00"), o = orarioNegozio(d);
   const m = t => { const x = new Date(t); return x.getHours() * 60 + x.getMinutes(); };
   if (!o || m(ini) < minDa(o[0]) || m(fin - 1) >= minDa(o[1])) return "chiuso";
   const p = pausaDel(d);
@@ -765,7 +770,7 @@ function risorsaPiena(chiave, ini, fin, usa, ignoraId) {
 // Quanto è libero un giorno, da 0 a 1: a ogni quarto d'ora dell'orario (pausa esclusa; oggi solo da adesso)
 // conta le operatrici libere, togliendo quelle occupate dagli scritti a mano non riconosciuti. null = nessun orario.
 function quotaLibera(chiave, operatrice, ignoraId) {
-  const d = new Date(chiave + "T12:00:00"), o = orarioDel(d);
+  const d = new Date(chiave + "T12:00:00"), o = orarioNegozio(d);
   if (!o) return null;
   const p = pausaDel(d), ora = Date.now(), quante = operatrice ? 1 : S.imp.operatrici.length;
   let libere = 0, totale = 0;
@@ -787,7 +792,7 @@ function quotaLibera(chiave, operatrice, ignoraId) {
 // Gli orari d'inizio liberi in un giorno, ogni 15 minuti, con chi è libera a quell'ora.
 // null = giorno non ancora caricato (non si sa).
 function slotLiberi(chiave, durata, operatrice, ignoraId, usa = []) {
-  const d = new Date(chiave + "T12:00:00"), o = orarioDel(d);
+  const d = new Date(chiave + "T12:00:00"), o = orarioNegozio(d);
   if (!o) return [];
   const ini0 = aData(chiave, "00:00");
   if (!coperto(ini0, piuGiorni(ini0, 1))) return null;
@@ -1408,7 +1413,7 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
       if (d.getMonth() !== m.getMonth()) return `<span class="fuoriM"></span>`;
       const cls = [k === F.giorno ? "sceltoG" : "", k === oggi ? "oggiG" : ""];
       let titolo = "", pct = 100;
-      if (!orarioDel(d)) { cls.push("chiusoG"); titolo = "chiuso"; }
+      if (!orarioNegozio(d)) { cls.push("chiusoG"); titolo = "chiuso"; }
       else if (k < oggi) { cls.push("gPieno"); titolo = "passato"; }
       else if (pronto) {
         // Il colore dice quanto è davvero libero il giorno (ore-operatrice libere sul totale dell'orario),
@@ -1434,7 +1439,7 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
     const liberi = slotLiberi(F.giorno, durata, op, F.id, usa);
     const dG = new Date(F.giorno + "T12:00:00");
     $("fLiberi").innerHTML = liberi === null ? `<span class="tenue">Sto caricando gli orari…</span>`
-      : !orarioDel(dG) ? `<span class="tenue">${giornoBreve(dG)}: chiuso</span>`
+      : !orarioNegozio(dG) ? `<span class="tenue">${giornoBreve(dG)}: chiuso</span>`
       : liberi.length ? `<span class="tenue" style="width:100%">Orari liberi ${giornoBreve(dG)}${op ? " con " + esc(op) : ""}, per ${durataTesto(durata)}:</span>` + liberi.map((p, i) =>
         `<button type="button" data-lib="${i}" class="${p.ora === F.ora ? "sceltoO" : ""}" title="Libere: ${esc(p.libere.join(", "))}">${S.imp.operatrici.length > 1 && !op ? p.libere.map(n => `<i class="pallino" style="${varColore(n)}"></i>`).join("") : ""}${p.ora}</button>`).join("")
       : `<span class="tenue">${giornoBreve(dG)}: nessun orario libero per ${durataTesto(durata)}${op ? " con " + esc(op) : ""}</span>`;
@@ -1569,7 +1574,7 @@ function apriForm({ giorno, ora, operatrice, cliente, modifica, gruppo, servizi 
     const inizio = aData(F.giorno, F.ora), fineMs = inizio.getTime() + F.minuti * 60000;
     const fuori = !forza && fuoriOrario(F.giorno, inizio.getTime(), fineMs);
     if (fuori) {
-      $("fAvviso").innerHTML = `<div class="avviso"><b>${fuori === "pausa" ? "Quell'orario cade nella pausa." : "Quell'orario è fuori dall'apertura."}</b>
+      $("fAvviso").innerHTML = `<div class="avviso"><b>${fuori === "pausa" ? "Quell'orario cade nella pausa." : "Quell'orario è fuori dall'orario del negozio."}</b>
         <div class="azioni"><button id="fForza">Salva lo stesso</button></div></div>`;
       $("fForza").onclick = () => salva(true);
       return $("fAvviso").scrollIntoView({ block: "center" });
@@ -1915,7 +1920,13 @@ function disegnaImpostazioni() {
       <div class="due" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
         ${[["cabina", "Cabine"], ["unghie", "Postazioni unghie"], ["laser", "Laser"], ["pressoterapia", "Pressoterapia"]].map(([k, t]) => `<div><label for="iR${k}">${t}</label><input id="iR${k}" data-ris="${k}" type="number" min="0" inputmode="numeric" value="${I.risorse[k] ?? 0}"></div>`).join("")}
       </div></div>
-    <div class="scheda"><b>Orari di apertura</b>
+    <div class="scheda"><b>Orario del negozio</b><div class="tenue">Conta per i posti liberi nel modulo e per l’avviso "fuori orario". Fuori da qui si può prenotare lo stesso, con conferma.</div>
+      ${ordine.map(g => `<div class="due" style="grid-template-columns:110px 1fr 1fr;align-items:center;margin-top:6px">
+        <label class="riga" style="margin:0"><input type="checkbox" data-naperto="${g}" ${I.negozio[g] ? "checked" : ""}> ${nomiGiorni[g].slice(0, 3)}</label>
+        <input type="time" data-nda="${g}" value="${I.negozio[g]?.[0] || "09:30"}" aria-label="${nomiGiorni[g]} apertura negozio">
+        <input type="time" data-na="${g}" value="${I.negozio[g]?.[1] || "18:30"}" aria-label="${nomiGiorni[g]} chiusura negozio"></div>`).join("")}
+    </div>
+    <div class="scheda"><b>Orari visibili in agenda</b><div class="tenue">Le ore che si vedono aperte in agenda: più larghe dell’orario del negozio, per gli appuntamenti fuori orario.</div>
       ${ordine.map(g => `<div class="due" style="grid-template-columns:110px 1fr 1fr;align-items:center;margin-top:6px">
         <label class="riga" style="margin:0"><input type="checkbox" data-aperto="${g}" ${I.orari[g] ? "checked" : ""}> ${nomiGiorni[g].slice(0, 3)}</label>
         <input type="time" data-da="${g}" value="${I.orari[g]?.[0] || "09:00"}" aria-label="${nomiGiorni[g]} apertura">
@@ -2003,6 +2014,11 @@ function disegnaImpostazioni() {
     ridisegna();                              // la pausa compare solo nei giorni aperti
   };
   ordine.forEach(g => document.querySelectorAll(`[data-aperto="${g}"],[data-da="${g}"],[data-a="${g}"]`).forEach(e => e.onchange = () => orari(g)));
+  const negozio = g => {
+    const su = document.querySelector(`[data-naperto="${g}"]`).checked;
+    I.negozio[g] = su ? [document.querySelector(`[data-nda="${g}"]`).value, document.querySelector(`[data-na="${g}"]`).value] : null;
+  };
+  ordine.forEach(g => document.querySelectorAll(`[data-naperto="${g}"],[data-nda="${g}"],[data-na="${g}"]`).forEach(e => e.onchange = () => negozio(g)));
   const pausa = g => {
     const su = document.querySelector(`[data-pausa="${g}"]`).checked;
     I.pause[g] = su ? [document.querySelector(`[data-pda="${g}"]`).value, document.querySelector(`[data-pa="${g}"]`).value] : null;
